@@ -10,6 +10,6 @@ https://three-body.com.cn/2020/11/02/Android-USB-Camera-Implementations/
 https://three-body.com.cn/2020/10/22/Android-HAL-Intro/
 https://three-body.com.cn/tags/index.html
 https://three-body.com.cn/categories/index.html
-https://three-body.com.cn/about/index.html
 https://three-body.com.cn/hot/index.html
+https://three-body.com.cn/about/index.html
 https://three-body.com.cn/
