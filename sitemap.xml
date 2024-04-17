@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://three-body.com.cn/2020/11/18/Android-Camera-HAL-Treble/</loc>
+    <loc>https://three-body.com.cn/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c/</loc>
     
     <lastmod>2024-04-17</lastmod>
     
@@ -21,6 +21,15 @@
   
   <url>
     <loc>https://three-body.com.cn/2020/11/12/Android-External-USB-Cameras/</loc>
+    
+    <lastmod>2024-04-17</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://three-body.com.cn/2020/11/18/Android-Camera-HAL-Treble/</loc>
     
     <lastmod>2024-04-17</lastmod>
     
@@ -101,7 +110,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/hot/index.html</loc>
+    <loc>https://three-body.com.cn/categories/index.html</loc>
     
     <lastmod>2021-03-19</lastmod>
     
@@ -110,7 +119,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/categories/index.html</loc>
+    <loc>https://three-body.com.cn/hot/index.html</loc>
     
     <lastmod>2021-03-19</lastmod>
     
