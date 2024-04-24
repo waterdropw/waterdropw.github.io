@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://three-body.com.cn/googled7c6edc3a9953ead.html</loc>
+    
+    <lastmod>2024-04-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://three-body.com.cn/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/</loc>
     
     <lastmod>2024-04-24</lastmod>
@@ -110,7 +119,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/hot/index.html</loc>
+    <loc>https://three-body.com.cn/about/index.html</loc>
     
     <lastmod>2021-03-19</lastmod>
     
@@ -128,7 +137,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/about/index.html</loc>
+    <loc>https://three-body.com.cn/hot/index.html</loc>
     
     <lastmod>2021-03-19</lastmod>
     
