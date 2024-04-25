@@ -1,6 +1,5 @@
 https://three-body.com.cn/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/
 https://three-body.com.cn/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/
-https://three-body.com.cn/googled7c6edc3a9953ead.html
 https://three-body.com.cn/2020/10/23/Android-Camera-HAL-Intro/
 https://three-body.com.cn/2020/11/12/Android-External-USB-Cameras/
 https://three-body.com.cn/2020/11/18/Android-Camera-HAL-Treble/
