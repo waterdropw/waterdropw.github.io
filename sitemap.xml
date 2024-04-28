@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://three-body.com.cn/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/</loc>
+    <loc>https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/</loc>
     
     <lastmod>2024-04-25</lastmod>
     
@@ -11,7 +11,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/</loc>
+    <loc>https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/</loc>
     
     <lastmod>2024-04-25</lastmod>
     
@@ -20,7 +20,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2020/10/23/Android-Camera-HAL-Intro/</loc>
+    <loc>https://waterdropw.github.io/2020/10/23/Android-Camera-HAL-Intro/</loc>
     
     <lastmod>2024-04-17</lastmod>
     
@@ -29,7 +29,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2020/11/12/Android-External-USB-Cameras/</loc>
+    <loc>https://waterdropw.github.io/2020/11/12/Android-External-USB-Cameras/</loc>
     
     <lastmod>2024-04-17</lastmod>
     
@@ -38,7 +38,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2020/11/18/Android-Camera-HAL-Treble/</loc>
+    <loc>https://waterdropw.github.io/2020/11/18/Android-Camera-HAL-Treble/</loc>
     
     <lastmod>2024-04-17</lastmod>
     
@@ -47,7 +47,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2020/10/25/V4L2-Camera-HALv3/</loc>
+    <loc>https://waterdropw.github.io/2020/10/25/V4L2-Camera-HALv3/</loc>
     
     <lastmod>2024-04-16</lastmod>
     
@@ -56,7 +56,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2023/09/28/NCCL-Debug/</loc>
+    <loc>https://waterdropw.github.io/2023/09/28/NCCL-Debug/</loc>
     
     <lastmod>2024-04-16</lastmod>
     
@@ -65,7 +65,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2023/09/28/LLaMA/</loc>
+    <loc>https://waterdropw.github.io/2023/09/28/LLaMA/</loc>
     
     <lastmod>2024-04-16</lastmod>
     
@@ -74,7 +74,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2020/12/25/Compiler-Bug-for-C-Funcs-Override/</loc>
+    <loc>https://waterdropw.github.io/2020/12/25/Compiler-Bug-for-C-Funcs-Override/</loc>
     
     <lastmod>2024-04-16</lastmod>
     
@@ -83,7 +83,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2020/11/02/Android-USB-Camera-Implementations/</loc>
+    <loc>https://waterdropw.github.io/2020/11/02/Android-USB-Camera-Implementations/</loc>
     
     <lastmod>2024-04-16</lastmod>
     
@@ -92,7 +92,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/2020/10/22/Android-HAL-Intro/</loc>
+    <loc>https://waterdropw.github.io/2020/10/22/Android-HAL-Intro/</loc>
     
     <lastmod>2024-04-16</lastmod>
     
@@ -101,7 +101,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/tags/index.html</loc>
+    <loc>https://waterdropw.github.io/tags/index.html</loc>
     
     <lastmod>2021-03-19</lastmod>
     
@@ -110,7 +110,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/categories/index.html</loc>
+    <loc>https://waterdropw.github.io/about/index.html</loc>
     
     <lastmod>2021-03-19</lastmod>
     
@@ -119,7 +119,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/about/index.html</loc>
+    <loc>https://waterdropw.github.io/hot/index.html</loc>
     
     <lastmod>2021-03-19</lastmod>
     
@@ -128,7 +128,7 @@
   </url>
   
   <url>
-    <loc>https://three-body.com.cn/hot/index.html</loc>
+    <loc>https://waterdropw.github.io/categories/index.html</loc>
     
     <lastmod>2021-03-19</lastmod>
     
@@ -138,8 +138,8 @@
   
 
   <url>
-    <loc>https://three-body.com.cn/</loc>
-    <lastmod>2024-04-25</lastmod>
+    <loc>https://waterdropw.github.io/</loc>
+    <lastmod>2024-04-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
