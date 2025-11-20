@@ -2,6 +2,105 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://waterdropw.github.io/2020/10/25/V4L2-Camera-HALv3/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2023/09/28/NCCL-Debug/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2023/09/28/LLaMA/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2020/12/25/Compiler-Bug-for-C-Funcs-Override/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2020/11/02/Android-USB-Camera-Implementations/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2020/10/22/Android-HAL-Intro/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2020/11/12/Android-External-USB-Cameras/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2020/11/18/Android-Camera-HAL-Treble/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2020/10/23/Android-Camera-HAL-Intro/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://waterdropw.github.io/tags/index.html</loc>
     
     <lastmod>2025-11-20</lastmod>
@@ -38,106 +137,7 @@
   </url>
   
   <url>
-    <loc>https://waterdropw.github.io/2023/09/28/LLaMA/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2023/09/28/NCCL-Debug/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2020/10/25/V4L2-Camera-HALv3/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://waterdropw.github.io/about/index.html</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2020/10/22/Android-HAL-Intro/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2020/11/02/Android-USB-Camera-Implementations/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2020/12/25/Compiler-Bug-for-C-Funcs-Override/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2020/10/23/Android-Camera-HAL-Intro/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2020/11/18/Android-Camera-HAL-Treble/</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/2020/11/12/Android-External-USB-Cameras/</loc>
     
     <lastmod>2025-11-20</lastmod>
     
@@ -154,6 +154,174 @@
   </url>
 
   
+  <url>
+    <loc>https://waterdropw.github.io/tags/Android/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/Camera/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/HAL/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/NDK/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/Compiler/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/AI/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/transformer/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/self-attention/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/LLM/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/LlaMa/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/HPC/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/GPU/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/Android/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/Android/Camera/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/Android/NDK/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/AI/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/Android/Camera/HAL/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/Android/NDK/Compiler/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/AI/transformer/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/AI/LLM/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/AI/transformer/self-attention/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/AI/LLM/LlaMa/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/AI/HPC/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/AI/HPC/GPU/</loc>
+    <lastmod>2025-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
   
 </urlset>
