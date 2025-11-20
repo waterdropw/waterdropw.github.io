@@ -1,0 +1,280 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>C++ 函数实现的异常覆盖 | waterdrop wei's blog</title><meta name="author" content="waterdrop wei"><meta name="copyright" content="waterdrop wei"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Android NDK 有一些巨坑，编译链接没什么问题，运行时出错，而且非常难查。比如声明有返回值的函数实现漏写return语句， 会导致函数调用之后跑飞，x86不会有问题。最近遇到另外一个巨坑，采用静态链接第三方库，如果有同名函数，即使是函数签名不同，函数实现会被覆盖，也就是调用到的是第三方库实现，本地实现被覆盖掉, OMG~~~~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ 函数实现的异常覆盖">
+<meta property="og:url" content="https://waterdropw.github.io/2020/12/25/Compiler-Bug-for-C-Funcs-Override/index.html">
+<meta property="og:site_name" content="waterdrop wei&#39;s blog">
+<meta property="og:description" content="Android NDK 有一些巨坑，编译链接没什么问题，运行时出错，而且非常难查。比如声明有返回值的函数实现漏写return语句， 会导致函数调用之后跑飞，x86不会有问题。最近遇到另外一个巨坑，采用静态链接第三方库，如果有同名函数，即使是函数签名不同，函数实现会被覆盖，也就是调用到的是第三方库实现，本地实现被覆盖掉, OMG~~~~">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://waterdropw.github.io/images/waterdrop.jpeg">
+<meta property="article:published_time" content="2020-12-25T10:09:59.000Z">
+<meta property="article:modified_time" content="2025-11-20T09:19:03.608Z">
+<meta property="article:author" content="waterdrop wei">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://waterdropw.github.io/images/waterdrop.jpeg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://waterdropw.github.io/2020/12/25/Compiler-Bug-for-C-Funcs-Override/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lXlWKu0XEea_JgmAK9kbcSzDAlGOvw3UBxKPUp03pz8"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'C++ 函数实现的异常覆盖',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-11-20 17:19:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="waterdrop wei's blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/waterdrop.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/jellyfish.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="waterdrop wei's blog"><span class="site-name">waterdrop wei's blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">C++ 函数实现的异常覆盖</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-25T10:09:59.000Z" title="发表于 2020-12-25 18:09:59">2020-12-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-20T09:19:03.608Z" title="更新于 2025-11-20 17:19:03">2025-11-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="C++ 函数实现的异常覆盖"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><code>Android NDK</code> 有一些巨坑，编译链接没什么问题，运行时出错，而且非常难查。比如<strong>声明有返回值的函数实现漏写<code>return</code>语句</strong>， 会导致函数调用之后跑飞，<code>x86</code>不会有问题。最近遇到另外一个巨坑，采用静态链接第三方库，如果有同名函数，即使是函数签名不同，函数实现会被覆盖，也就是调用到的是第三方库实现，本地实现被覆盖掉, OMG~~~~</p>
+<span id="more"></span>
+
+<p>编译环境：<br><strong>Host</strong>： MacOS<br><strong>Target</strong>: Android NDKr20<br><strong>ToolChain</strong>: bazel<br><strong>Link</strong>: Static Library</p>
+<p>动态链接会报同名函数重定义错误~~ 该问题仅限于<strong>静态链接</strong></p>
+<p>本地函数声明如下，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line"><span class="keyword">namespace</span> libfcc &#123;</span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> &#123;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">LIBFCC_API</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">I420ToNV12</span><span class="params">(<span class="type">const</span> u8 *src_i420, u8 *dst_nv12, <span class="type">int</span> width, <span class="type">int</span> height)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line">&#125;  <span class="comment">// extern &quot;C&quot;</span></span><br><span class="line">&#125;  <span class="comment">// namespace libfcc</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>Google <code>libyuv</code> 同名函数声明如下，</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line"><span class="keyword">namespace</span> libyuv &#123;</span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> &#123;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">LIBYUV_API</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">I420ToNV12</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span>* src_y,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">int</span> src_stride_y,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">const</span> <span class="type">uint8_t</span>* src_u,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">int</span> src_stride_u,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">const</span> <span class="type">uint8_t</span>* src_v,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">int</span> src_stride_v,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">uint8_t</span>* dst_y,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">int</span> dst_stride_y,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">uint8_t</span>* dst_uv,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">int</span> dst_stride_uv,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">int</span> width,</span></span></span><br><span class="line"><span class="params"><span class="function">               <span class="type">int</span> height)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line">&#125;  <span class="comment">// extern &quot;C&quot;</span></span><br><span class="line">&#125;  <span class="comment">// namespace libyuv</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>然后，神奇发生了，只要测试代码里面调用了该同名函数，运行时莫名崩溃，百思不得其解。</p>
+<p>代码实现里添加log 没有打印，因为是在 benchmark 测试里面调用，刚开始怀疑是 benchmark 屏蔽了 log 输出。抽出来 <code>main</code> 函数测试也有问题，意识到是函数实现被覆盖了，注释掉本地函数实现，依然编译链接通过，没有任何错误，确定是编译链接问题。移除 <code>libyuv</code> 库依赖，一切恢复正常！！</p>
+<p>这里函数签名不同也能被覆盖，是比较坑的地方！原因是因为用了 <code>extern &quot;C&quot;</code> 声明，也就是不会做 mangling 处理，导致编译器无法识别不同的函数签名。这也是 C 无法实现函数重载的原因。</p>
+<p>那为何没有报函数重定义错呢？！</p>
+<p>因为我虽然带着 <code>libyuv</code> 编译了，但是本地代码里面没有任何地方引用到<code>libyuv</code>，也就是没有 include <code>libyuv</code> 头文件。所以，编译器把我本地头文件的函数声明，与<code>libyuv</code> 的函数实现编译到一起了，既有函数声明，又有函数定义，所以不会有编译错误。</p>
+<p>那为何编译器没有报函数调用参数缺少的<code>Warning</code>?!</p>
+<p>NDK 编译，静态链接下不会有 Warning！甚至于添加 <code>-Werror</code>，也不会有 build error 信息。Why？</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io">waterdrop wei</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io/2020/12/25/Compiler-Bug-for-C-Funcs-Override/">https://waterdropw.github.io/2020/12/25/Compiler-Bug-for-C-Funcs-Override/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://waterdropw.github.io" target="_blank">waterdrop wei's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/images/waterdrop.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/09/28/LLaMA/" title="论文摘要-LLaMA"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">论文摘要-LLaMA</div></div></a></div><div class="next-post pull-right"><a href="/2020/11/18/Android-Camera-HAL-Treble/" title="Android Camera HAL 新架构"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Android Camera HAL 新架构</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/waterdrop.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">waterdrop wei</div><div class="author-info__description">技术博客，杂记，随笔</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/waterdropw"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/waterdropw" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xiaobin.wee@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到三体世界，我是水滴💧</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/" title="极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)">极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/" title="极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)">极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/NCCL-Debug/" title="多机多卡训练：NCCL Debug">多机多卡训练：NCCL Debug</a><time datetime="2023-09-28T08:05:10.000Z" title="发表于 2023-09-28 16:05:10">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/LLaMA/" title="论文摘要-LLaMA">论文摘要-LLaMA</a><time datetime="2023-09-28T06:48:11.000Z" title="发表于 2023-09-28 14:48:11">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/12/25/Compiler-Bug-for-C-Funcs-Override/" title="C++ 函数实现的异常覆盖">C++ 函数实现的异常覆盖</a><time datetime="2020-12-25T10:09:59.000Z" title="发表于 2020-12-25 18:09:59">2020-12-25</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By waterdrop wei</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="chat-btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: '877679214f203d8523ee',
+      clientSecret: '45f0f9eb775009a45487e3330795c0ac1e3f08b3',
+      repo: 'waterdropw.github.io',
+      owner: 'waterdropw',
+      admin: ['waterdropw'],
+      id: 'b5cdadc81800132969ef7dd7ff88ac01',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.textContent= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

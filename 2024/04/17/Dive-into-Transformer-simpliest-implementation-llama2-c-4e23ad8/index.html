@@ -1,0 +1,947 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27) | waterdrop wei's blog</title><meta name="author" content="waterdrop wei"><meta name="copyright" content="waterdrop wei"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="基于源码调试过程，以及如下两篇文章整理。 This repo is line by line walk through of the inference file in llama2.c. Its very verbose &amp; intended for beginners.You will need some familiarity with transformers architectu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="极简&#96;Transformer&#96;实现(基于&#96;llama2.c&#96;commit-4e23ad 23&#39;7&#x2F;27)">
+<meta property="og:url" content="https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/index.html">
+<meta property="og:site_name" content="waterdrop wei&#39;s blog">
+<meta property="og:description" content="基于源码调试过程，以及如下两篇文章整理。 This repo is line by line walk through of the inference file in llama2.c. Its very verbose &amp; intended for beginners.You will need some familiarity with transformers architectu">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://waterdropw.github.io/images/waterdrop.jpeg">
+<meta property="article:published_time" content="2024-04-17T02:34:26.000Z">
+<meta property="article:modified_time" content="2025-11-20T09:19:03.608Z">
+<meta property="article:author" content="waterdrop wei">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://waterdropw.github.io/images/waterdrop.jpeg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lXlWKu0XEea_JgmAK9kbcSzDAlGOvw3UBxKPUp03pz8"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23\'7/27)',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-20 17:19:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="waterdrop wei's blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/waterdrop.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/jellyfish.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="waterdrop wei's blog"><span class="site-name">waterdrop wei's blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-20T09:19:03.608Z" title="更新于 2025-11-20 17:19:03">2025-11-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>基于源码调试过程，以及如下两篇文章整理。</p>
+<blockquote><p>This repo is line by line walk through of the inference file in llama2.c. Its very verbose &amp; intended for beginners.<br>You will need some familiarity with transformers architecture. If you are a complete novice refer to this excellent blog first.</p>
+<footer><strong>RahulSChand</strong><cite><a target="_blank" rel="noopener" href="https://github.com/RahulSChand/llama2.c-for-dummies">cllama2.c-for-dummies</a></cite></footer></blockquote>
+
+<blockquote><p>The Illustrated Transformer。</p>
+<footer><strong>jalammar</strong><cite><a target="_blank" rel="noopener" href="https://jalammar.github.io/illustrated-transformer">illustrated-transformer</a></cite></footer></blockquote>
+
+<p>llama2.c 包含了训练代码和推理实现，作者提供了如下几个预训练模型，可以直接运行 run 这个demo程序生成一个简短的小故事。</p>
+<table>
+<thead>
+<tr>
+<th>model</th>
+<th>dim</th>
+<th>n_layers</th>
+<th>n_heads</th>
+<th>n_kv_heads</th>
+<th>max context length</th>
+<th>parameters</th>
+<th>val loss</th>
+<th>download</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>260K</td>
+<td>64</td>
+<td>5</td>
+<td>8</td>
+<td>4</td>
+<td>512</td>
+<td>260K</td>
+<td>1.297</td>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/karpathy/tinyllamas/tree/main/stories260K">https://huggingface.co/karpathy/tinyllamas/tree/main/stories260K</a></td>
+</tr>
+<tr>
+<td>OG</td>
+<td>288</td>
+<td>6</td>
+<td>6</td>
+<td>6</td>
+<td>256</td>
+<td>15M</td>
+<td>1.072</td>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin">https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin</a></td>
+</tr>
+<tr>
+<td>42M</td>
+<td>512</td>
+<td>8</td>
+<td>8</td>
+<td>8</td>
+<td>1024</td>
+<td>42M</td>
+<td>0.847</td>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/karpathy/tinyllamas/resolve/main/stories42M.bin">https://huggingface.co/karpathy/tinyllamas/resolve/main/stories42M.bin</a></td>
+</tr>
+<tr>
+<td>110M</td>
+<td>768</td>
+<td>12</td>
+<td>12</td>
+<td>12</td>
+<td>1024</td>
+<td>110M</td>
+<td>0.760</td>
+<td><a target="_blank" rel="noopener" href="https://huggingface.co/karpathy/tinyllamas/resolve/main/stories110M.bin">https://huggingface.co/karpathy/tinyllamas/resolve/main/stories110M.bin</a></td>
+</tr>
+</tbody></table>
+<p>与一般的问答式文本生成不一样, <code>run</code> 的实现做了简化，首先是没有prompt 输入而是每次运行直接生成一个tiny story，所以也就没有针对prompt 做embedding 的 init_prefill 计算阶段，而只有 generate；其次是在生成的迭代过程中，主要的transformer计算输入输出只需要词元的 <code>token</code> 因此预先把所有词元的embedding存储在<code>token_embedding_table</code> 中，迭代过程中直接从里面读取当前位置的 embedding 参与计算，推理过程中可以省掉输入词元的embedding计算过程。</p>
+<p>涉及到的输入文件有模型checkpoint如 <code>stories15M.bin</code> ，以及tokenizer 文件 <code>tokenizer.bin</code> ，具体的文件结构可以参考文末的分析。</p>
+<span id="more"></span>
+
+<h1 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h1><p><code>main</code>处理命令行参数，模型推理主要在<code>transformer</code>函数里面。</p>
+<h2 id="main-执行流程"><a href="#main-执行流程" class="headerlink" title="main 执行流程"></a><code>main</code> 执行流程</h2><ol>
+<li>解析命令行参数，包括 checkpoint 文件路径, temperature, steps</li>
+<li>加载checkpoint 文件内容，包括模型配置和权重</li>
+<li>加载 <code>tokenizer.bin</code></li>
+<li>初始化运行时变量，包括kv cache等</li>
+<li>根据给定的 seq_len (steps) 执行循环，以 BOS 作为第一个token开始：<ol>
+<li><p>transformer 输出下一个token的logits</p>
+</li>
+<li><p>参考temperature的值，由logits得到token值</p>
+<ol>
+<li>如果temperature&#x3D;&#x3D;0，采用贪心搜索直接取最大值，$next&#x3D;argmax(logits)$</li>
+<li>否则，随机采样得到token，$next&#x3D;sample(softmax(logits&#x2F;temperature))$ <img src="/images/llama2/classifier.png" class=""></li>
+</ol>
+</li>
+<li><p>token即为vocab的index，从tokenizer中得到对应的单词并打印</p>
+</li>
+</ol>
+</li>
+<li>内存清理并退出</li>
+</ol>
+<h2 id="transformer执行流程"><a href="#transformer执行流程" class="headerlink" title="transformer执行流程"></a><code>transformer</code>执行流程</h2><img src="/images/llama2/tranformer_arch.png" class="" width="434" height="460">
+
+<blockquote>
+<p>注意：因为是纯推理，所以实现的是decoder部分，att计算的是 <code>Masked Multi-Head Attention</code> ，也就是代码中的 <code>[0, pos]</code> 相当于是mask之后的。</p>
+</blockquote>
+<p>计算过程：</p>
+<ol>
+<li>从 <code>token_embedding_table</code> 中取出当前token的embedding (dim, ) 放入 <code>s-&gt;x</code> 中</li>
+<li>循环遍历每一层：<ol>
+<li><p>对<code>s-&gt;x</code>计算rmsnorm并存入 <code>s-&gt;xb</code></p>
+</li>
+<li><p>对 <code>s-&gt;xb</code> 计算 Q、K、V，结果存入 <code>s-&gt;q</code>, <code>s-&gt;k</code>, <code>s-&gt;v</code></p>
+</li>
+<li><p>对每个多头，计算RoPE编码的Q、K，结果存入 <code>s-&gt;q</code>, <code>s-&gt;k</code></p>
+</li>
+<li><p>保存当前位置的KV到缓存 <code>s-&gt;key_cache</code> , <code>s-&gt;value_cache</code> 注意K是带位置编码信息的，而V不带</p>
+</li>
+<li><p>kv cache (layer, seq_len, dim)，则<code>int loff = l * p-&gt;seq_len * dim</code> 是第 <code>l</code> 层的kv cache起始位置</p>
+</li>
+<li><p>计算多头注意力，循环遍历每个头</p>
+<ol>
+<li>Q起始位置，Q(dim, 1)拆分多头后维度为(n_heads, head_dim)，所以第 <code>h</code> 头的起始位置为**<code>float* q = s-&gt;q + h * head_size</code></li>
+<li>atten score (n_heads, seq_len)，因为是按头维度存放的，所以在第  <code>h</code> 头的起始位置就是 <code>s-&gt;att + h * p-&gt;seq_len</code></li>
+<li>kv cache在 <code>dim</code>维度拆分多头后为(layer, seq_len, n_heads, head_dim)，则第 <code>h</code> 头的偏移为 <code>h*head_size</code></li>
+<li>计算该词元对<strong>它之前所有</strong>词元的注意力分数（包含自己），其实就是masked attention，<code>for t in 0..pos+1</code>:<ul>
+<li>第 <code>t</code> 个词元对应在第 <code>h</code> 头内的偏移为 <code>t*dim</code> ,综上，该位置的cache为 <code>s-&gt;key_cache + loff + h * head_size + t * dim</code></li>
+<li>计算 $att(t)&#x3D;\sum_{i&#x3D;0}^{head\_dim}Q_i*K_i&#x2F;\sqrt{head\_dim}$ ，其维度为 <code>(seq_len, )</code>，但因为仅仅[0, pos]的值为有效的，也即每个已生成的词元都有一个分数。（注意，att数组内容在计算下一个token时被重新填充）</li>
+</ul>
+</li>
+<li>att经过softmax转换为注意力权重 $att&#x3D;softmax(att)$</li>
+<li>接下来一步，是把每个词元的<code>V</code>向量与其对应的<code>att</code>值相乘，然后加总形成一个新的<code>V</code>向量，存储到<code>s-&gt;xb</code>中，计算公式为 $\hat{V}&#x3D;\sum_{t&#x3D;0}^{pos}att(t)*V(t)$，其维度为<code>(head_dim,)</code>与<code>V</code>相同，所以head计算完成之后，维度为<code>(dim,)</code>至此，多头循环结束。</li>
+</ol>
+</li>
+<li><p>注意力最后一步，与 $W^O$ 矩阵相乘，得到该层最终的注意力输出向量<code>(dim,)</code>存储到 <code>s-&gt;xb2</code></p>
+</li>
+<li><p>接下来是 residual 的 <code>Add&amp;Norm</code>，elemwise add 和 rmsnorm，结果存入 <code>s-&gt;xb</code></p>
+ <figure class="highlight c"><figcaption><span>Add&Norm</span><a target="_blank" rel="noopener" href="https://github.com/karpathy/llama2.c/blob/4e23ad83995601b63a7697ef27d0ba958480b908/run.c#L304">run.c</a></figcaption><table><tr><td class="gutter"><pre><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br></pre></td><td class="code"><pre><span class="line marked"><span class="comment">// residual connection back into x</span></span><br><span class="line">accum(x, s-&gt;xb2, dim);</span><br><span class="line"><span class="comment">// ffn rmsnorm</span></span><br><span class="line">rmsnorm(s-&gt;xb, x, w-&gt;rms_ffn_weight + l*dim, dim);</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接下来是FFN网络计算: <code>self.w2(F.silu(self.w1(x)) * self.w3(x))</code></p>
+<ol>
+<li><code>s-&gt;hb=matmul(w-&gt;w1, s-&gt;xb)</code></li>
+<li><code>s-&gt;hb2=matmul(w-&gt;w3, s-&gt;xb)</code></li>
+<li><code>silu(x)=x*σ(x)</code> for <code>s-&gt;hb</code></li>
+<li>elemwise mul <code>s-&gt;hb * s-&gt;hb2</code></li>
+<li>matmul，得到FFN输出，存储在 <code>s-&gt;xb</code></li>
+</ol>
+</li>
+<li><p>layer计算最后一步，residual 的 <code>Add&amp;Norm</code>，注意该实现中rmsnorm放到了layer循环的最开始，这样除最后一层外都会residual add之后执行rmsnorm，而最后一层则放在classifier 的rmsnorm。至此，layer循环结束</p>
+</li>
+</ol>
+</li>
+<li>Classifier 前面的 final rmsnorm， 就是针对最后一层residual的结果做rmsnorm，存入 <code>s-&gt;x</code>b 中</li>
+<li>classifier into logits ，是个Linear层，从(dim,) → (vocab_size,) 的转换， 就是一个matmul: (vacob_size, dim) * (dim,1) → (vocab_size, 1) 结果就是logits，对应字典里每个token的分数。</li>
+</ol>
+<h1 id="其它函数"><a href="#其它函数" class="headerlink" title="其它函数"></a>其它函数</h1><h2 id="rmsnorm"><a href="#rmsnorm" class="headerlink" title="rmsnorm"></a><code>rmsnorm</code></h2><p>The RMS normalization (RMSNorm) is calculated using the following equation:</p>
+<p>$$<br>y&#x3D;\frac{x}{\sqrt{\frac{1}{N}\sum_{i&#x3D;1}^{N}x_i^2+\varepsilon}}<br>$$</p>
+<p>Where:</p>
+<ul>
+<li>$x$ is the input vector</li>
+<li>$N$ is the dimension of the input vector $x$</li>
+<li>$\varepsilon$ is a small number for numerical stability (typically $1e-8$)</li>
+</ul>
+<h2 id="matmul"><a href="#matmul" class="headerlink" title="matmul"></a><code>matmul</code></h2><p>矩阵和向量乘：</p>
+<p>$$<br>\mathbf{y} &#x3D; \mathbf{W} \mathbf{x}<br>$$</p>
+<p>其中：</p>
+<ul>
+<li>$\mathbf{y}(d,1)$ 是结果向量</li>
+<li>$\mathbf{W}(d,n)$ 是矩阵</li>
+<li>$\mathbf{x}(n,1)$ 是乘数向量</li>
+</ul>
+<figure class="highlight c"><figcaption><span>矩阵向量乘</span><a target="_blank" rel="noopener" href="https://github.com/karpathy/llama2.c/blob/4e23ad83995601b63a7697ef27d0ba958480b908/run.c#L194">run.c</a></figcaption><table><tr><td class="gutter"><pre><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br></pre></td><td class="code"><pre><span class="line marked"><span class="type">void</span> <span class="title function_">matmul</span><span class="params">(<span class="type">float</span>*xout, <span class="type">float</span>* x, <span class="type">float</span>*w, <span class="type">int</span> n, <span class="type">int</span> d)</span> &#123;</span><br><span class="line">    <span class="comment">// W (d,n) @ x (n,) -&gt; xout (d,)</span></span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">    <span class="meta">#<span class="keyword">pragma</span> omp parallel for private(i)</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; d; i++) &#123;</span><br><span class="line">        <span class="type">float</span> val = <span class="number">0.0f</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; n; j++) &#123;</span><br><span class="line">            val += w[i * n + j]* x[j];</span><br><span class="line">        &#125;</span><br><span class="line">        xout[i] = val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下是各模型 <code>matmul</code> 调用情况</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>dim</th>
+<th>n_layers</th>
+<th>n_heads</th>
+<th>hidden_dim</th>
+<th>seq len</th>
+<th>(d,n)</th>
+<th>call num&#x2F;per token</th>
+<th>desc</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>stories15M.bin</td>
+<td>288</td>
+<td>6</td>
+<td>6</td>
+<td>768</td>
+<td>256</td>
+<td>(288,288)</td>
+<td>4x6&#x3D;24</td>
+<td>(layer, dim, dim) Q、K、V、O matmul</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(288,768)</td>
+<td>2x6&#x3D;12</td>
+<td>(dim,hidden_dim) W1、W3</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(768,288)</td>
+<td>1x6&#x3D;6</td>
+<td>(hidden_dim,dim) W2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(32000,288)</td>
+<td>1x1&#x3D;1</td>
+<td>(vocab_size,dim) classifier</td>
+</tr>
+<tr>
+<td>stories42M.bin</td>
+<td>512</td>
+<td>8</td>
+<td>8</td>
+<td>1376</td>
+<td>1024</td>
+<td>(512,512)</td>
+<td>4x8&#x3D;32</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(1376,512)</td>
+<td>2x8&#x3D;16</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(512,1376)</td>
+<td>1x8&#x3D;8</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(32000,512)</td>
+<td>1x1&#x3D;1</td>
+<td></td>
+</tr>
+<tr>
+<td>stories110M.bin</td>
+<td>768</td>
+<td>12</td>
+<td>12</td>
+<td>2048</td>
+<td>1024</td>
+<td>(768,768)</td>
+<td>4x12&#x3D;48</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(2048,768)</td>
+<td>2x12&#x3D;24</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(768,2048)</td>
+<td>1x12&#x3D;12</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>(32000,768)</td>
+<td>1x1&#x3D;1</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="RoPE"><a href="#RoPE" class="headerlink" title="RoPE"></a><code>RoPE</code></h2><p>RoPE（旋转位置嵌入）的计算公式：</p>
+<p>$$<br>E_{(pos, 2i)} &#x3D; sin(pos &#x2F; 10000^{2i&#x2F;d})<br>$$</p>
+<p>$$<br>E_{(pos, 2i+1)} &#x3D; cos(pos &#x2F; 10000^{2i&#x2F;d})<br>$$</p>
+<p>其中：</p>
+<ul>
+<li>$pos$ 是位置序号，代表词在句子中的位置</li>
+<li>$d$ 是词向量维度（通常经过word embedding后是512）</li>
+<li>$2i$ 对应 $d$ 中的偶数维数，$2i+1$ 对应 $d$ 中的奇数维度</li>
+</ul>
+<p>计算代码如下 <code>freq_cis_real</code> <em>(<code>cos</code>)和 <code>freq_cis_imag</code> (<code>sin</code>)分别存储了维度为<code>(seq_len, dim/2)</code> 偶数和奇数维度的位置参数（训练参数？），这些参数所有head共享，计算过程是遍历每个head重新计算带位置信息的<code>q</code> 和 <code>k</code> 。</em></p>
+<figure class="highlight c"><figcaption><span>`RoPE`计算过程</span><a target="_blank" rel="noopener" href="https://github.com/karpathy/llama2.c/blob/4e23ad83995601b63a7697ef27d0ba958480b908/run.c#L234">run.c</a></figcaption><table><tr><td class="gutter"><pre><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// pluck out the &quot;pos&quot; row of freq_cis_real and freq_cis_imag</span></span><br><span class="line"><span class="type">float</span>* freq_cis_real_row = w-&gt;freq_cis_real + pos * head_size / <span class="number">2</span>;</span><br><span class="line"><span class="type">float</span>* freq_cis_imag_row = w-&gt;freq_cis_imag + pos * head_size / <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// apply RoPE rotation to the q and k vectors for each head</span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> h = <span class="number">0</span>; h &lt; p-&gt;n_heads; h++) &#123;</span><br><span class="line">    <span class="comment">// get the q and k vectors for this head</span></span><br><span class="line marked">    <span class="type">float</span>* q = s-&gt;q + h * head_size;</span><br><span class="line marked">    <span class="type">float</span>* k = s-&gt;k + h * head_size;</span><br><span class="line">    <span class="comment">// rotate q and k by the freq_cis_real and freq_cis_imag</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; head_size; i+=<span class="number">2</span>) &#123;</span><br><span class="line">        <span class="type">float</span> q0 = q[i];</span><br><span class="line">        <span class="type">float</span> q1 = q[i+<span class="number">1</span>];</span><br><span class="line">        <span class="type">float</span> k0 = k[i];</span><br><span class="line">        <span class="type">float</span> k1 = k[i+<span class="number">1</span>];</span><br><span class="line">        <span class="type">float</span> fcr = freq_cis_real_row[i/<span class="number">2</span>];</span><br><span class="line">        <span class="type">float</span> fci = freq_cis_imag_row[i/<span class="number">2</span>];</span><br><span class="line marked">        q[i]   = q0 * fcr - q1 * fci;</span><br><span class="line marked">        q[i+<span class="number">1</span>] = q0 * fci + q1 * fcr;</span><br><span class="line marked">        k[i]   = k0 * fcr - k1 * fci;</span><br><span class="line marked">        k[i+<span class="number">1</span>] = k0 * fci + k1 * fcr;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="softmax"><a href="#softmax" class="headerlink" title="softmax"></a><code>softmax</code></h2><p>llama2.c 的实现形式:</p>
+ <!-- to solve the {{}} parse error -->
+$$
+\sigma(x_i) = \frac{e^{{x_i}-x_{max}}}{\sum_{j=1}^{N} e^{{x_j}-{x_{max}}}}
+$$
+
+<p>简化版本为</p>
+
+$$
+\sigma(x_i)=\frac{e^{x_i}}{\sum_{j=1}^{N} e^{x_j}}
+$$
+
+<p>Where:</p>
+<ul>
+<li>$x$ is the input vector</li>
+<li>$i$ is the element of the input vector $x$</li>
+<li>$N$ is the number of elements</li>
+</ul>
+<figure class="highlight c"><figcaption><span>softmax计算</span><a target="_blank" rel="noopener" href="https://github.com/karpathy/llama2.c/blob/4e23ad83995601b63a7697ef27d0ba958480b908/run.c#L174">run.c</a></figcaption><table><tr><td class="gutter"><pre><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br></pre></td><td class="code"><pre><span class="line marked"><span class="type">void</span> <span class="title function_">softmax</span><span class="params">(<span class="type">float</span>* x, <span class="type">int</span> size)</span> &#123;</span><br><span class="line">    <span class="comment">// find max value (for numerical stability)</span></span><br><span class="line">    <span class="type">float</span> max_val = x[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (x[i] &gt; max_val) &#123;</span><br><span class="line">            max_val = x[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// exp and sum</span></span><br><span class="line">    <span class="type">float</span> sum = <span class="number">0.0f</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">        x[i] = expf(x[i] - max_val);</span><br><span class="line">        sum += x[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// normalize</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">        x[i] /= sum;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="关键数据结构"><a href="#关键数据结构" class="headerlink" title="关键数据结构"></a>关键数据结构</h1><h2 id="kv-cache内存结构"><a href="#kv-cache内存结构" class="headerlink" title="kv_cache内存结构"></a><code>kv_cache</code>内存结构</h2><p><code>key_cache</code>, <code>value_cache</code>维度为<code>(n_layers, seq_len, dim)</code>, 分开存储在如下所示的内存结构里</p>
+<table>
+<thead>
+<tr>
+<th>layer-0</th>
+<th></th>
+<th></th>
+<th></th>
+<th>layer-1</th>
+<th></th>
+<th></th>
+<th></th>
+<th>…</th>
+<th>layer-n</th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>token-0</td>
+<td>token-1</td>
+<td>…</td>
+<td>token-k</td>
+<td>token-0</td>
+<td>token-1</td>
+<td>…</td>
+<td>token-k</td>
+<td>…</td>
+<td>token-0</td>
+<td>token-1</td>
+<td>…</td>
+<td>token-k</td>
+</tr>
+<tr>
+<td><code>(dim,)</code></td>
+<td><code>(dim,)</code></td>
+<td>…</td>
+<td><code>(dim,)</code></td>
+<td><code>(dim,)</code></td>
+<td><code>(dim,)</code></td>
+<td>…</td>
+<td><code>(dim,)</code></td>
+<td>…</td>
+<td><code>(dim,)</code></td>
+<td><code>(dim,)</code></td>
+<td>…</td>
+<td><code>(dim,)</code></td>
+</tr>
+</tbody></table>
+<p>多头则是在<code>dim</code>维度再做拆分，则如下所示</p>
+<table>
+<thead>
+<tr>
+<th>layer-0</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th>layer-1</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th>…</th>
+<th>layer-n</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>token-0</td>
+<td></td>
+<td></td>
+<td></td>
+<td>token-1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>…</td>
+<td>token-k</td>
+<td></td>
+<td></td>
+<td></td>
+<td>token-0</td>
+<td></td>
+<td></td>
+<td></td>
+<td>token-1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>…</td>
+<td>token-n</td>
+<td></td>
+<td></td>
+<td></td>
+<td>…</td>
+<td>token-0</td>
+<td></td>
+<td></td>
+<td></td>
+<td>token-1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>…</td>
+<td>token-k</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+<td>…</td>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+<td>…</td>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+<td>…</td>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+<td>…</td>
+<td>head-0</td>
+<td>head-1</td>
+<td>…</td>
+<td>head-m</td>
+</tr>
+<tr>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+<td><code>(head_dim,)</code></td>
+<td>…</td>
+<td><code>(head_dim,)</code></td>
+</tr>
+</tbody></table>
+<h2 id="checkpoint文件"><a href="#checkpoint文件" class="headerlink" title="checkpoint文件"></a><code>checkpoint</code>文件</h2><p>该文件存储了<code>Transformer</code>模型配置及权重信息，主要分两部分，数据按照二进制紧挨着存储，其中权重各子项的offset可由config相关维度信息计算得出。</p>
+<ul>
+<li>Config struct，全是4字节 <code>int</code> 的维度信息，主要包括dim, hidden_dim, n_layers, n_heads, n_kv_heads, vocab_size, seq_len等</li>
+<li>全是4字节 <code>float</code> 的权重信息，主要包括embedding table，attention的Q&#x2F;K&#x2F;V&#x2F;O，FFN的权重，RoPE，RMS，classifier等权重</li>
+</ul>
+<p>如下是15M参数量的OG模型配置信息</p>
+<table>
+<thead>
+<tr>
+<th>config</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th>token embedding table</th>
+<th>weights for rmsnorm</th>
+<th></th>
+<th>weights for atten</th>
+<th></th>
+<th></th>
+<th></th>
+<th>wights for ffn</th>
+<th></th>
+<th></th>
+<th>final rmsnorm</th>
+<th>RoPE</th>
+<th></th>
+<th>classifier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dim</td>
+<td>hidden_dim</td>
+<td>n_layers</td>
+<td>n_heads</td>
+<td>n_kv_heads</td>
+<td>vocab_size</td>
+<td>seq_len</td>
+<td>token_embedding_table</td>
+<td>rms_att_weight</td>
+<td>rms_ffn_weight</td>
+<td>wq</td>
+<td>wk</td>
+<td>wv</td>
+<td>wo</td>
+<td>w1</td>
+<td>w2</td>
+<td>w3</td>
+<td>rms_final_weight</td>
+<td>freq_cis_real</td>
+<td>freq_cis_imag</td>
+<td>wcls</td>
+</tr>
+<tr>
+<td>288</td>
+<td>768</td>
+<td>6</td>
+<td>6</td>
+<td>6</td>
+<td>32000</td>
+<td>256</td>
+<td>(vocab_size, dim) → (32000, 288)</td>
+<td>(n_layers, dim) → (6, 288)</td>
+<td>(n_layers, dim) → (6, 288)</td>
+<td>(n_layers, dim, dim) → (6, 288, 288)</td>
+<td>(n_layers, dim, dim) → (6, 288, 288)</td>
+<td>(n_layers, dim, dim) → (6, 288, 288)</td>
+<td>(n_layers, dim, dim) → (6, 288, 288)</td>
+<td>(n_layers, hidden_dim, dim) → (6, 768, 288)</td>
+<td>(n_layers, dim, hidden_dim) → (6, 288, 768)</td>
+<td>(n_layers, hidden_dim, dim) → (6, 768, 288)</td>
+<td>(dim, ) → (288,)</td>
+<td>(seq_len, dim&#x2F;2) → (256, 288&#x2F;2)</td>
+<td>(seq_len, dim&#x2F;2) → (256, 288&#x2F;2)</td>
+<td>(vocab_size, hidden_size) <em>(hidden_size, 1) → (32000, 768)</em> (768,1)</td>
+</tr>
+</tbody></table>
+<ol>
+<li>token embedding table</li>
+</ol>
+<p>是维度为 (vacab_size, dim)的数组，所以token 是该pos处对应的词元在vocab里面的索引，每个token对应一个(dim,) 大小的向量，该实现中应是为了简化，词元向量大小与Q&#x2F;K&#x2F;V向量大小一致，也即<code>dim</code> 。在其它实现中会不一样，一般是 token_len &gt; dim，比如把词元embedding之后是(256,)的向量，然后压缩为(288,)的向量。</p>
+<h2 id="tokenizer文件"><a href="#tokenizer文件" class="headerlink" title="tokenizer文件"></a><code>tokenizer</code>文件</h2><p>该文件保存的是总共 <code>vocab_size</code> 个token，每个token包含2部分，前面是4个字节 <code>int</code> 型的token长度，紧接着是token内容（不包括结束符的字符串），如下图，所有token一个挨一个存储。</p>
+<blockquote>
+<p><code>vocab_size</code> 存储在 <code>checkpoint</code> 文件里。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>token len</th>
+<th>token content</th>
+<th>token len</th>
+<th>token content</th>
+<th>…</th>
+<th>token len</th>
+<th>token content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>l</td>
+<td>4</td>
+<td>like</td>
+<td></td>
+<td>11</td>
+<td>suggestions</td>
+</tr>
+</tbody></table>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li><p>简单来讲，注意力，就是针对每个词元，计算其它<strong>已有</strong>词元与其的<strong>关系</strong>，即两两得到一个注意力分数，所以每个词元最终对应一个 <code>(seq_len,)</code> 的向量，有效部分是 <code>[0, pos]</code> 也就是该词元及其前面的位置。因为要预测下一个位置，所以还需要把每个词元的注意力分数作为权重与其自身的 <code>V</code> 相乘，然后按元素相加得到一个新的 <code>V</code>,用来预测下一个词元。再具体点，就是两两词元的Q与K点积得到一个值（即注意力分数），然后作为其V的权重，把所有V按元素相加合并成一个新的V，再经过FFN、Classifier即可预测下一个词元。</p>
+</li>
+<li><p>注意力计算公式也简单：</p>
+ <img src="/images/llama2/transformer_func.png" class="" width="319" height="188">
+</li>
+<li><p>multi-head 拆分是在 <code>dim</code>维度，每个head的 <code>head_dim</code> 加总等于 <code>dim</code> 。拆分之后，att 的计算仅限于 <code>head_dim</code> 内部进行，也即上述公式中的 ${d_k}&#x3D;head\_dim$，head 之间互不干涉。</p>
+</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io">waterdrop wei</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/">https://waterdropw.github.io/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://waterdropw.github.io" target="_blank">waterdrop wei's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/images/waterdrop.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/" title="极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/waterdrop.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">waterdrop wei</div><div class="author-info__description">技术博客，杂记，随笔</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/waterdropw"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/waterdropw" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xiaobin.wee@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到三体世界，我是水滴💧</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">执行流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#main-%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">main 执行流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#transformer%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">transformer执行流程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B6%E5%AE%83%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">其它函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#rmsnorm"><span class="toc-number">2.1.</span> <span class="toc-text">rmsnorm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#matmul"><span class="toc-number">2.2.</span> <span class="toc-text">matmul</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RoPE"><span class="toc-number">2.3.</span> <span class="toc-text">RoPE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#softmax"><span class="toc-number">2.4.</span> <span class="toc-text">softmax</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">关键数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#kv-cache%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">kv_cache内存结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#checkpoint%E6%96%87%E4%BB%B6"><span class="toc-number">3.2.</span> <span class="toc-text">checkpoint文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tokenizer%E6%96%87%E4%BB%B6"><span class="toc-number">3.3.</span> <span class="toc-text">tokenizer文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/" title="极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)">极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/" title="极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)">极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/NCCL-Debug/" title="多机多卡训练：NCCL Debug">多机多卡训练：NCCL Debug</a><time datetime="2023-09-28T08:05:10.000Z" title="发表于 2023-09-28 16:05:10">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/LLaMA/" title="论文摘要-LLaMA">论文摘要-LLaMA</a><time datetime="2023-09-28T06:48:11.000Z" title="发表于 2023-09-28 14:48:11">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/12/25/Compiler-Bug-for-C-Funcs-Override/" title="C++ 函数实现的异常覆盖">C++ 函数实现的异常覆盖</a><time datetime="2020-12-25T10:09:59.000Z" title="发表于 2020-12-25 18:09:59">2020-12-25</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By waterdrop wei</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat-btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: '877679214f203d8523ee',
+      clientSecret: '45f0f9eb775009a45487e3330795c0ac1e3f08b3',
+      repo: 'waterdropw.github.io',
+      owner: 'waterdropw',
+      admin: ['waterdropw'],
+      id: 'd12a3649cc953fbe041739f48c882776',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.textContent= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

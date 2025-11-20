@@ -1,0 +1,342 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Android 外接 USB 摄像头 | waterdrop wei's blog</title><meta name="author" content="waterdrop wei"><meta name="copyright" content="waterdrop wei"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="如前述文章所述，Google 在 Android P 上提供了对 usb camera 设备的支持，官方叫法是 External USB Cameras ，提供了完整 HALv3 实现并接入到 CameraProviderManager；可以让任何三方相机应用轻松调用到外接 USB 摄像头功能，而且使用方法跟内置相机几无差别，都是透过 Android Camera API2 调用。 遗憾的是该功能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 外接 USB 摄像头">
+<meta property="og:url" content="https://waterdropw.github.io/2020/11/12/Android-External-USB-Cameras/index.html">
+<meta property="og:site_name" content="waterdrop wei&#39;s blog">
+<meta property="og:description" content="如前述文章所述，Google 在 Android P 上提供了对 usb camera 设备的支持，官方叫法是 External USB Cameras ，提供了完整 HALv3 实现并接入到 CameraProviderManager；可以让任何三方相机应用轻松调用到外接 USB 摄像头功能，而且使用方法跟内置相机几无差别，都是透过 Android Camera API2 调用。 遗憾的是该功能">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://waterdropw.github.io/images/waterdrop.jpeg">
+<meta property="article:published_time" content="2020-11-12T09:42:17.000Z">
+<meta property="article:modified_time" content="2025-11-20T09:19:03.607Z">
+<meta property="article:author" content="waterdrop wei">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://waterdropw.github.io/images/waterdrop.jpeg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://waterdropw.github.io/2020/11/12/Android-External-USB-Cameras/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lXlWKu0XEea_JgmAK9kbcSzDAlGOvw3UBxKPUp03pz8"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Android 外接 USB 摄像头',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-20 17:19:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="waterdrop wei's blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/waterdrop.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/jellyfish.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="waterdrop wei's blog"><span class="site-name">waterdrop wei's blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Android 外接 USB 摄像头</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-11-12T09:42:17.000Z" title="发表于 2020-11-12 17:42:17">2020-11-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-20T09:19:03.607Z" title="更新于 2025-11-20 17:19:03">2025-11-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Android 外接 USB 摄像头"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>如前述文章所述，Google 在 Android P 上提供了对 usb camera 设备的支持，官方叫法是 <code>External USB Cameras</code> ，提供了完整 HALv3 实现并接入到 <code>CameraProviderManager</code>；可以让任何三方相机应用轻松调用到外接 USB 摄像头功能，而且使用方法跟内置相机几无差别，都是透过 <code>Android Camera API2</code> 调用。</p>
+<p>遗憾的是该功能默认关闭，并且 OEM 厂商大概率也会去改 AOSP 代码，比如 multi-caemra，SAT 等功能的实现，有可能会对其造成影响。</p>
+<p>这篇文章详述如何开启 Android 手机上原生支持 USB 外接摄像头这个功能。因为底层走 V4L2 接口，所以支持 UVC 驱动的视频设备都能支持，包括常见的单反，微单，PC 机用的 usb 摄像头，网络摄像头等等，应用非常广泛。</p>
+<p>目前看网络上还没有这方面的相关资料，一些嵌入式设备可能有类似的功能实现 (基于 <code>Linux</code> 或 <code>Qt</code>)，基于 android 系统开发的也有可能是直接使用这套方案的。当然也可以实现自己的 HAL 模块并接入 Android Camera HAL 子系统，具体可参考这篇文章介绍 <a href="/2020/11/18/Android-Camera-HAL-Treble/" title="Android Camera HAL 新架构">Android Camera HAL 新架构</a></p>
+<blockquote>
+<p>提示：<br>需要 root 权限的手机，并且可以源码编译<br>如果都没有，退而求其次，备选方案可参考这篇文章 <a href="/2020/11/02/Android-USB-Camera-Implementations/" title="Android USB Camera 的实现方案">Android USB Camera 的实现方案</a></p>
+</blockquote>
+<span id="more"></span>
+
+<p>首先确保手机系统支持 USB 主机模式 <code>android.hardware.usb.host</code>, 一个简单的办法是连接 usb 外设，然后安装运行<strong>USBEnumerator</strong> 这个 android demo app，看是否能列出连接的设备。</p>
+<blockquote>
+<p><strong>备注</strong><br><code>USBEnumerator</code> 获取方式：<br>Android Studio -&gt; Import an Android code sample -&gt; 搜索 USB -&gt; 编译安装</p>
+</blockquote>
+<p>当 Android 设备处于 USB 主机模式时，它会充当 USB 主机，为总线供电并枚举连接的 USB 设备。Android 3.1 及更高版本支持 USB 主机模式。</p>
+<h1 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h1><h2 id="kernel-配置"><a href="#kernel-配置" class="headerlink" title="kernel 配置"></a>kernel 配置</h2><p>必须开启 kernel 对 UVC 设备的支持，主要是需要 V4L2 驱动层功能模块。<br>修改 kernel config 文件，增加如下声明</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">+CONFIG_USB_VIDEO_CLASS=y</span><br><span class="line">+CONFIG_MEDIA_USB_SUPPORT=y</span><br></pre></td></tr></table></figure>
+
+<h2 id="android-配置"><a href="#android-配置" class="headerlink" title="android 配置"></a>android 配置</h2><p>external camera 默认是关闭的，需要修改配置脚本打开，以当前的 <code>2.4</code> 版本为例说明。</p>
+<p><strong>第一步</strong>，修改产品对应的 product mk 配置文件，增加如下声明:</p>
+<ul>
+<li>第一行将 external-service 及其启动脚本加入系统</li>
+<li>第二行是将新增加的 usb camera 配置文件拷贝到 out&#x2F;target&#x2F;product&#x2F;DEVICE&#x2F;vendor&#x2F;etc&#x2F; 下面，也可以省略这一步，直接 push 到手机。</li>
+</ul>
+<p><code>device/your_oem/your_product/product_xxx.mk</code></p>
+<figure class="highlight mk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+PRODUCT_PACKAGES += android.hardware.camera.provider@2.4-external-service</span><br><span class="line"></span><br><span class="line">+PRODUCT_COPY_FILES += \</span><br><span class="line"><span class="section">+device/manufacturerX/productY/external_camera_config.xml:<span class="variable">$(TARGET_COPY_OUT_VENDOR)</span>/etc/external_camera_config.xml</span></span><br></pre></td></tr></table></figure>
+
+<p>编译如下两个模块：</p>
+<ul>
+<li><code>hardware/interfaces/camera/provider/2.4</code></li>
+<li><code>hardware/interfaces/camera/device/3.4</code></li>
+</ul>
+<p>然后 push 如下几个更新的库到手机 (<code>DEVICE</code> 换成对应的product)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># external provider</span></span><br><span class="line">adb push out/target/product/DEVICE/vendor/lib64/android.hardware.camera.provider@2.4-external.so /vendor/lib64/</span><br><span class="line">adb push out/target/product/DEVICE/vendor/lib/android.hardware.camera.provider@2.4-external.so /vendor/lib</span><br><span class="line"><span class="comment"># external camera device</span></span><br><span class="line">adb push out/target/product/DEVICE/vendor/lib64/camera.device@3.4-external-impl.so /vendor/lib64</span><br><span class="line">adb push out/target/product/DEVICE/vendor/lib/camera.device@3.4-external-impl.so /vendor/lib/</span><br><span class="line"><span class="comment"># external service</span></span><br><span class="line">adb push out/target/product/DEVICE/vendor/bin/hw/android.hardware.camera.provider@2.4-external-service /vendor/bin/hw/</span><br><span class="line"><span class="comment"># startup config</span></span><br><span class="line">adb push out/target/product/DEVICE/vendor/etc/init/android.hardware.camera.provider@2.4-external-service.rc /vendor/etc/init/</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步</strong>， 在 ODM 或者 vendor manifest xml 里面，增加一个节点 <code>external/0</code>, hwservicemanager 会读取该配置信息，如果没有对应的节点信息，则无法注册 external HAL 服务，上层看不到 camera 设备。</p>
+<p>source tree 位置: <code>device/VENDOR/DEVICE/[xxx_]manifest.xml</code><br>手机上位置：<code>/vendor/etc/vintf/manifest.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">hal</span> <span class="attr">format</span>=<span class="string">&quot;hidl&quot;</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">name</span>&gt;</span>android.hardware.camera.provider<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">transport</span> <span class="attr">arch</span>=<span class="string">&quot;32+64&quot;</span>&gt;</span>passthrough<span class="tag">&lt;/<span class="name">transport</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">impl</span> <span class="attr">level</span>=<span class="string">&quot;generic&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">impl</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">interface</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">name</span>&gt;</span>ICameraProvider<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">instance</span>&gt;</span>legacy/0<span class="tag">&lt;/<span class="name">instance</span>&gt;</span></span><br><span class="line">+       <span class="tag">&lt;<span class="name">instance</span>&gt;</span>external/0<span class="tag">&lt;/<span class="name">instance</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">interface</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">hal</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>直接更新手机上的文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adb pull /vendor/etc/vintf/manifest.xml ./</span><br><span class="line"><span class="comment"># 如上修改</span></span><br><span class="line">adb push manifest.xml /vendor/etc/vintf/</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三步</strong>，增加设备对应的 <code>external_camera_config.xml</code> 配置, 手动编辑好之后 push 到手机的 <code>/vendor/etc/</code> 下面即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb push external_camera_config.xml /vendor/etc/</span><br></pre></td></tr></table></figure>
+
+<p><code>/vendor/etc/external_camera_config.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ExternalCamera</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Provider</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">ignore</span>&gt;</span> <span class="comment">&lt;!-- Internal video devices to be ignored by external camera HAL --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>0<span class="tag">&lt;/<span class="name">id</span>&gt;</span> <span class="comment">&lt;!-- No leading/trailing spaces --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>1<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>32<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>33<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">ignore</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Provider</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- See ExternalCameraUtils.cpp for default values of Device configurations below --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Device</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Max JPEG buffer size in bytes--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">MaxJpegBufferSize</span> <span class="attr">bytes</span>=<span class="string">&quot;3145728&quot;</span>/&gt;</span> <span class="comment">&lt;!-- 3MB (~= 1080p YUV420) --&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Size of v4l2 buffer queue when streaming &gt;= 30fps --&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Larger value: more request can be cached pipeline (less janky)  --&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Smaller value: use less memory --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">NumVideoBuffers</span> <span class="attr">count</span>=<span class="string">&quot;4&quot;</span>/&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Size of v4l2 buffer queue when streaming &lt; 30fps --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">NumStillBuffers</span> <span class="attr">count</span>=<span class="string">&quot;2&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- List of maximum fps for various output sizes --&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Any image size smaller than the size listed in Limit row will report</span></span><br><span class="line"><span class="comment">            fps (as minimum frame duration) up to the fpsBound value. --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">FpsList</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- width/height must be increasing, fpsBound must be decreasing--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">Limit</span> <span class="attr">width</span>=<span class="string">&quot;640&quot;</span> <span class="attr">height</span>=<span class="string">&quot;480&quot;</span> <span class="attr">fpsBound</span>=<span class="string">&quot;30.0&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">Limit</span> <span class="attr">width</span>=<span class="string">&quot;1280&quot;</span> <span class="attr">height</span>=<span class="string">&quot;720&quot;</span> <span class="attr">fpsBound</span>=<span class="string">&quot;15.0&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">Limit</span> <span class="attr">width</span>=<span class="string">&quot;1920&quot;</span> <span class="attr">height</span>=<span class="string">&quot;1080&quot;</span> <span class="attr">fpsBound</span>=<span class="string">&quot;10.0&quot;</span>/&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- image size larger than the last entry will not be supported--&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">FpsList</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Device</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ExternalCamera</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p><strong>第四步</strong>，可选（目前不需要），如果要支持 <code>Treble passthrough mode</code>，则需要更新 <code>sepolicy</code> 配置，以便 <code>camerserver</code> 可以访问 <code>UVC camera</code>  </p>
+<p><code>device/VENDOR/DEVICE/sepolicy/xxx/hal_camera.te</code></p>
+<figure class="highlight mk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+<span class="comment"># for external camera</span></span><br><span class="line">+allow cameraserver device:dir r_dir_perms;</span><br><span class="line">+allow cameraserver video_device:dir r_dir_perms;</span><br><span class="line">+allow cameraserver video_device:chr_file rw_file_perms;</span><br></pre></td></tr></table></figure>
+
+<p>还有个简单直接的办法，调试时暂时关闭 <code>sepolicy</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setenforce 0    <span class="comment"># 强制关闭 sepolicy</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="framework-修复"><a href="#framework-修复" class="headerlink" title="framework 修复"></a>framework 修复</h1><p>上述动态库和配置文件都 ready 之后，极大可能还会遇到 binder crash，JE 等各种崩溃，或者 App 看不到0，1 之外的其它摄像头设备，这是因为 OEM 厂商动了 AOSP 代码。不同的 OEM 修改不一样。</p>
+<p>基本上都是改几行代码就能解决，主要是 <code>CameraManager.java</code> 这个文件! </p>
+<h1 id="使用外接-usb-camera"><a href="#使用外接-usb-camera" class="headerlink" title="使用外接 usb camera"></a>使用外接 usb camera</h1><h2 id="Camera2Basic-预览"><a href="#Camera2Basic-预览" class="headerlink" title="Camera2Basic 预览"></a>Camera2Basic 预览</h2><p>编译安装 Camera2Basic 这个android demo app，手机连接 usb camera，打开app 界面，会看到有 <strong>“External JPEG(&#x2F;dev&#x2F;videox)”</strong> 这个设备，点击打开预览。</p>
+<img src="/images/camera/Screenshot_2020-11-17-19-19-31-610_Camera2Basic.jpg" class="" width="270" height="560" title="相机列表">
+
+<p>如下是连接单反长焦镜头手机截图，从此单反的大光圈虚化，N 倍光学变焦手机也可以拥有！</p>
+<img src="/images/camera/Screenshot_2020-11-26-18-42-17-619_Camera2Basic.jpg" class="" width="270" height="560" title="单反光学变焦">
+
+<img src="/images/camera/Screenshot_2020-11-26-18-42-40-228_Camera2Basic.jpg" class="" width="270" height="560" title="单反背景虚化">
+
+<blockquote>
+<p><strong>备注</strong><br><code>Camera2Basic</code> 获取方式：<br>Android Studio -&gt; Import an Android code sample -&gt; Camera2Basic -&gt; 编译安装</p>
+</blockquote>
+<h2 id="微信视频通话"><a href="#微信视频通话" class="headerlink" title="微信视频通话"></a>微信视频通话</h2><p>微信默认使用前置摄像头（cameraId&#x3D;1），只需要让 external usb camera 返回给 CameraProviderManager 看到的 <code>cameraId</code> 是 “1” 即可。</p>
+<blockquote>
+<p>提示：  </p>
+</blockquote>
+<ul>
+<li>external provider 调用 <code>cameraDeviceStatusChanged</code> 时返回 <code>cameraId=&quot;1&quot;</code>，确保 CameraProviderManager -&gt; cameraservice -&gt; App 看到的设备id 是 “1” ，替换掉前置。</li>
+<li>external device 强制写死，比如 <code>mCameraId(&quot;/dev/video2&quot;)</code>, 确保 open&#x2F;close 时能正确打开 V4L2 设备节点</li>
+<li>CameraProviderManager 需要修改，开机时已经检测并添加了 id&#x3D;1 的前置摄像头设备，因此它不会允许再添加 external usb 设备，这个逻辑需要修改一下。</li>
+</ul>
+<p>Enjoy yourself！！！</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><blockquote>
+<p><code>Device Manifest</code><br><a target="_blank" rel="noopener" href="https://source.android.com/devices/architecture/vintf/objects">https://source.android.com/devices/architecture/vintf/objects</a><br><code>External USB Cameras</code><br><a target="_blank" rel="noopener" href="https://source.android.com/devices/camera/external-usb-cameras">https://source.android.com/devices/camera/external-usb-cameras</a><br><code>USB Host</code><br><a target="_blank" rel="noopener" href="https://developer.android.com/guide/topics/connectivity/usb/host">https://developer.android.com/guide/topics/connectivity/usb/host</a></p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io">waterdrop wei</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io/2020/11/12/Android-External-USB-Cameras/">https://waterdropw.github.io/2020/11/12/Android-External-USB-Cameras/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://waterdropw.github.io" target="_blank">waterdrop wei's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/images/waterdrop.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/11/18/Android-Camera-HAL-Treble/" title="Android Camera HAL 新架构"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Android Camera HAL 新架构</div></div></a></div><div class="next-post pull-right"><a href="/2020/11/02/Android-USB-Camera-Implementations/" title="Android USB Camera 的实现方案"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Android USB Camera 的实现方案</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/waterdrop.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">waterdrop wei</div><div class="author-info__description">技术博客，杂记，随笔</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/waterdropw"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/waterdropw" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xiaobin.wee@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到三体世界，我是水滴💧</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE"><span class="toc-number">1.</span> <span class="toc-text">修改配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#kernel-%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">kernel 配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#android-%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.</span> <span class="toc-text">android 配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#framework-%E4%BF%AE%E5%A4%8D"><span class="toc-number">2.</span> <span class="toc-text">framework 修复</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%A4%96%E6%8E%A5-usb-camera"><span class="toc-number">3.</span> <span class="toc-text">使用外接 usb camera</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Camera2Basic-%E9%A2%84%E8%A7%88"><span class="toc-number">3.1.</span> <span class="toc-text">Camera2Basic 预览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E4%BF%A1%E8%A7%86%E9%A2%91%E9%80%9A%E8%AF%9D"><span class="toc-number">3.2.</span> <span class="toc-text">微信视频通话</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/" title="极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)">极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/" title="极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)">极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/NCCL-Debug/" title="多机多卡训练：NCCL Debug">多机多卡训练：NCCL Debug</a><time datetime="2023-09-28T08:05:10.000Z" title="发表于 2023-09-28 16:05:10">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/LLaMA/" title="论文摘要-LLaMA">论文摘要-LLaMA</a><time datetime="2023-09-28T06:48:11.000Z" title="发表于 2023-09-28 14:48:11">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/12/25/Compiler-Bug-for-C-Funcs-Override/" title="C++ 函数实现的异常覆盖">C++ 函数实现的异常覆盖</a><time datetime="2020-12-25T10:09:59.000Z" title="发表于 2020-12-25 18:09:59">2020-12-25</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By waterdrop wei</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat-btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: '877679214f203d8523ee',
+      clientSecret: '45f0f9eb775009a45487e3330795c0ac1e3f08b3',
+      repo: 'waterdropw.github.io',
+      owner: 'waterdropw',
+      admin: ['waterdropw'],
+      id: '1a3a0d74fe7d8f23348f2de417792364',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.textContent= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

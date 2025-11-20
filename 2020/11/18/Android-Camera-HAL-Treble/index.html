@@ -1,0 +1,378 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Android Camera HAL 新架构 | waterdrop wei's blog</title><meta name="author" content="waterdrop wei"><meta name="copyright" content="waterdrop wei"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我们也把 Camera 拆分成 三驾马车 来看：App Framework, CameraService, Camera HAL 前面两个是 Android AOSP 代码，随着 Android 系统升级会持续更新，包含在 system.img 里面，同时 Java 部分接口也会包含在 Android SDK 一起发布。 随着 Android 8.0 的 Treble 架构发布，相当于是把三驾马车">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Camera HAL 新架构">
+<meta property="og:url" content="https://waterdropw.github.io/2020/11/18/Android-Camera-HAL-Treble/index.html">
+<meta property="og:site_name" content="waterdrop wei&#39;s blog">
+<meta property="og:description" content="我们也把 Camera 拆分成 三驾马车 来看：App Framework, CameraService, Camera HAL 前面两个是 Android AOSP 代码，随着 Android 系统升级会持续更新，包含在 system.img 里面，同时 Java 部分接口也会包含在 Android SDK 一起发布。 随着 Android 8.0 的 Treble 架构发布，相当于是把三驾马车">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://waterdropw.github.io/images/waterdrop.jpeg">
+<meta property="article:published_time" content="2020-11-18T09:40:24.000Z">
+<meta property="article:modified_time" content="2025-11-20T09:19:03.607Z">
+<meta property="article:author" content="waterdrop wei">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://waterdropw.github.io/images/waterdrop.jpeg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://waterdropw.github.io/2020/11/18/Android-Camera-HAL-Treble/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lXlWKu0XEea_JgmAK9kbcSzDAlGOvw3UBxKPUp03pz8"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Android Camera HAL 新架构',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-20 17:19:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="waterdrop wei's blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/waterdrop.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/jellyfish.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="waterdrop wei's blog"><span class="site-name">waterdrop wei's blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Android Camera HAL 新架构</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-11-18T09:40:24.000Z" title="发表于 2020-11-18 17:40:24">2020-11-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-20T09:19:03.607Z" title="更新于 2025-11-20 17:19:03">2025-11-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Android Camera HAL 新架构"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>我们也把 Camera 拆分成 <strong>三驾马车</strong> 来看：<code>App Framework</code>, <code>CameraService</code>, <code>Camera HAL</code></p>
+<p>前面两个是 <code>Android AOSP</code> 代码，随着 Android 系统升级会持续更新，包含在 system.img 里面，同时 Java 部分接口也会包含在 <code>Android SDK</code> 一起发布。</p>
+<p>随着 <code>Android 8.0</code> 的 Treble 架构发布，相当于是把三驾马车里面的前两架放到了 <code>system.img</code> 里面，一起随着 Android 系统升级更新，而最后一个则独立拆分出来，不仅仅是放到了新的进程里面，而且在手机系统上要求放到 <code>vendor</code> 分区，这样可以各自独立升级。</p>
+<span id="more"></span>
+
+<h1 id="三驾马车"><a href="#三驾马车" class="headerlink" title="三驾马车"></a>三驾马车</h1><p>先附上 Google 官方图例：</p>
+<img src="/images/camera/ape_fwk_camera2.jpg" class="" width="749" height="596" title="Camera HAL 新架构">
+
+<p><code>App Framework</code> 部分是最上层部分，包括 Java &amp; C++ 代码，实现了 <code>Android Camera2 API</code> 接口，提供给 android 应用使用，Java 部分包含在 Android SDK 里面。</p>
+<blockquote>
+<p>source tree  </p>
+</blockquote>
+<ul>
+<li>Java 实现：  <ul>
+<li><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/hardware/">https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/hardware/</a></li>
+<li><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/hardware/camera2">https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/hardware/camera2</a></li>
+</ul>
+</li>
+<li>C++ 实现：  <ul>
+<li><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/jni/">https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/jni/</a></li>
+</ul>
+</li>
+</ul>
+<p><code>CameraService</code> 是中间桥梁，负责沟通 Framework 与 Camera 硬件设备，把上层的调用需求透过 camera hal 接口转发给 HAL 硬件实现，同时返回处理结果。</p>
+<blockquote>
+<p>source tree  </p>
+</blockquote>
+<ul>
+<li>C++ 实现：  <ul>
+<li><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/frameworks/av/+/refs/heads/master/camera/">https://android.googlesource.com/platform/frameworks/av/+/refs/heads/master/camera/</a>  </li>
+<li><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/frameworks/av/+/refs/heads/master/services/camera/libcameraservice/">https://android.googlesource.com/platform/frameworks/av/+/refs/heads/master/services/camera/libcameraservice/</a></li>
+<li><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/frameworks/hardware/interfaces/+/refs/heads/master/cameraservice/">https://android.googlesource.com/platform/frameworks/hardware/interfaces/+/refs/heads/master/cameraservice/</a></li>
+</ul>
+</li>
+</ul>
+<p><code>Camera HAL</code> 是硬件适配层，针对不同 camera 硬件模组，由 OEM 厂商提供具体实现</p>
+<blockquote>
+<p>source tree</p>
+</blockquote>
+<ul>
+<li>Treble 架构  <ul>
+<li><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/hardware/interfaces/+/refs/heads/master/camera/">https://android.googlesource.com/platform/hardware/interfaces/+/refs/heads/master/camera/</a></li>
+</ul>
+</li>
+<li>Legacy  <ul>
+<li><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/hardware/libhardware/+/refs/heads/master/modules/camera/">https://android.googlesource.com/platform/hardware/libhardware/+/refs/heads/master/modules/camera/</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="第二架马车：cameraserver"><a href="#第二架马车：cameraserver" class="headerlink" title="第二架马车：cameraserver"></a>第二架马车：cameraserver</h1><p><code>frameworks/av/camera/cameraserver/main_cameraserver.cpp</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> LOG_TAG <span class="string">&quot;cameraserver&quot;</span></span></span><br><span class="line"><span class="comment">//#define LOG_NDEBUG 0</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;CameraService.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;hidl/HidlTransportSupport.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> android;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc __unused, <span class="type">char</span>** argv __unused)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">signal</span>(SIGPIPE, SIG_IGN);</span><br><span class="line">    <span class="comment">// Set 5 threads for HIDL calls. Now cameraserver will serve HIDL calls in</span></span><br><span class="line">    <span class="comment">// addition to consuming them from the Camera HAL as well.</span></span><br><span class="line">    hardware::<span class="built_in">configureRpcThreadpool</span>(<span class="number">5</span>, <span class="comment">/*willjoin*/</span> <span class="literal">false</span>);</span><br><span class="line">    <span class="function">sp&lt;ProcessState&gt; <span class="title">proc</span><span class="params">(ProcessState::self())</span></span>;</span><br><span class="line">    sp&lt;IServiceManager&gt; sm = <span class="built_in">defaultServiceManager</span>();</span><br><span class="line">    <span class="built_in">ALOGI</span>(<span class="string">&quot;ServiceManager: %p&quot;</span>, sm.<span class="built_in">get</span>());</span><br><span class="line">    CameraService::<span class="built_in">instantiate</span>();</span><br><span class="line">    <span class="built_in">ALOGI</span>(<span class="string">&quot;ServiceManager: %p done instantiate&quot;</span>, sm.<span class="built_in">get</span>());</span><br><span class="line">    ProcessState::<span class="built_in">self</span>()-&gt;<span class="built_in">startThreadPool</span>();</span><br><span class="line">    IPCThreadState::<span class="built_in">self</span>()-&gt;<span class="built_in">joinThreadPool</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><code>frameworks/av/camera/cameraserver/cameraserver.rc</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">service cameraserver /system/bin/cameraserver</span><br><span class="line">    class main</span><br><span class="line">    user cameraserver</span><br><span class="line">    group audio camera input drmrpc</span><br><span class="line">    ioprio rt 4</span><br><span class="line">    task_profiles CameraServiceCapacity MaxPerformance</span><br><span class="line">    rlimit rtprio 10 10</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="第三驾马车：HAL-Impl"><a href="#第三驾马车：HAL-Impl" class="headerlink" title="第三驾马车：HAL Impl"></a>第三驾马车：HAL Impl</h1><h2 id="Camera-Provider-实现"><a href="#Camera-Provider-实现" class="headerlink" title="Camera Provider 实现"></a>Camera Provider 实现</h2><p>首先，实现 hal 独立运行的进程，并向 <code>hwservicemanager</code> 注册 <code>ICameraProvider</code> 服务，对上层提供硬件功能，包括设备状态信息的查询&#x2F;更新，获取设备接口以便可以调用设备功能。</p>
+<p>AOSP 代码目前有两个 <code>ICameraProvider</code> 服务进程：</p>
+<ul>
+<li><code>legacy/0</code>, 给内置相机用, 所以目前为止，Camera HALv3 实现还是属于<code>传统 HAL</code>，参考<a target="_blank" rel="noopener" href="https://source.android.google.cn/devices/architecture/hal-types?hl=zh-cn">HAL 类型</a></li>
+<li><code>external/0</code>, Android P 新增的调用外接 usb 相机的 HAL 服务进程</li>
+</ul>
+<p>它们都有对应的启动脚本，在系统启动时加载运行。所以<strong>内置相机</strong>和<strong>外接相机</strong>的HAL 实现是分别在两个不同进程里面，各自独立互不影响！</p>
+<p>如果需要还可以扩展更多 camera provider，比如 <code>internal</code>, <code>legacy</code>, <code>external</code>, <code>remote</code> 等等，只要具备以下几个条件，<code>cameraservice</code> 就能透过 <code>CameraProviderManager</code> 查询到该服务并查询到 camera 设备列表，供 <code>App Framework</code> 使用该相机设备：</p>
+<ul>
+<li>启动脚本</li>
+<li>启动 binary，调用 <code>defaultPassthroughServiceImplementation</code> 注册服务</li>
+<li>manifest camera.provider 节点声明，包括 <code>ßtransport</code> 类型和 <code>instance</code> 实例节点名称</li>
+</ul>
+<p>进程启动时，会完成这么几件事，跟 <code>hwservicemanager</code>以及<code>PassthroughServiceManager</code>的交互通过 binder IPC 调用完成</p>
+<ol>
+<li>确保 <code>/dev/vndbinder</code> 对应的 binder 服务进程已经启动，如果没有则启动它</li>
+<li>在该进程里透过 <code>android_dlopen_ext/dlopen</code> 加载对应版本的库，这里是<code>android.hardware.camera.provider@2.4-impl.so</code></li>
+<li>透过 <code>dlsym</code> 获取到 <code>HIDL_FETCH_ICameraProvider</code> 方法，然后遍历 manifest 里面 <code>camera.provider</code> 这个 <code>hidl</code> 接口声明的 <code>instance</code> 实例名称，作为参数调用该方法， 即可获取到该实例对应的 <code>ICameraProvider</code> 实现</li>
+<li>向 hwservicemanager 注册该服务：<ul>
+<li>首先在 <code>hwservicemanager</code> 中插入一个 <code>HidlService</code> (interfaceName, instanceName)</li>
+<li>其次生成的 <code>CameraProvider</code> 对象也要透过 IPC 调用 <code>hidl::manager::add</code> 把自己添加到 <code>hwservicemanager</code>，因为上一步已经插入了一个对应的 <code>HidlService</code> 所以仅仅是更新 <code>pid</code>和 <code>service</code> 指向实例对象</li>
+<li>(interfaceName， instanceName) 对应 internal camera provider 就是 (“<a href="mailto:&#x61;&#x6e;&#x64;&#x72;&#x6f;&#x69;&#x64;&#46;&#x68;&#97;&#114;&#100;&#119;&#x61;&#114;&#x65;&#x2e;&#99;&#x61;&#109;&#101;&#114;&#x61;&#46;&#x70;&#114;&#111;&#118;&#105;&#100;&#101;&#114;&#x40;&#x32;&#x2e;&#52;">&#x61;&#x6e;&#x64;&#x72;&#x6f;&#x69;&#x64;&#46;&#x68;&#97;&#114;&#100;&#119;&#x61;&#114;&#x65;&#x2e;&#99;&#x61;&#109;&#101;&#114;&#x61;&#46;&#x70;&#114;&#111;&#118;&#105;&#100;&#101;&#114;&#x40;&#x32;&#x2e;&#52;</a>::ICameraProvider”, “&#x2F;legacy&#x2F;0”)，</li>
+</ul>
+</li>
+</ol>
+<p>这几个步骤都在当前启动的进程里面调用 <code>defaultPassthroughServiceImplementation</code> 完成的，所以调用过程中透过 <code>IPCThreadState::self()-&gt;getCallingPid()</code> 获取到当前进程的pid，也就是提供服务的进程。</p>
+<p>详细代码可以跟踪该函数查阅，另外还要参考 <code>hardware/interfaces/camera</code> 源代码下面 <code>*.hal</code> 编译时由 <code>hidl-gen</code> 生成的中间源代码</p>
+<img src="/images/camera/ICameraProvider-hal-gen.jpg" class="" width="364" height="419" title="hidl-gen intermediates">
+
+
+<p><code>HidlService</code> 保持的信息如下，包括<strong>接口名称</strong>, <strong>实例名称</strong>, <strong>实例对象</strong>， <strong>HAL进程pid</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">HidlService</span> &#123;</span><br><span class="line">    <span class="built_in">HidlService</span>(<span class="type">const</span> std::string &amp;interfaceName,</span><br><span class="line">                <span class="type">const</span> std::string &amp;instanceName,</span><br><span class="line">                <span class="type">const</span> sp&lt;IBase&gt; &amp;service,</span><br><span class="line">                <span class="type">const</span> <span class="type">pid_t</span> pid);</span><br><span class="line">    <span class="built_in">HidlService</span>(<span class="type">const</span> std::string &amp;interfaceName,</span><br><span class="line">                <span class="type">const</span> std::string &amp;instanceName)</span><br><span class="line">    : <span class="built_in">HidlService</span>(</span><br><span class="line">        interfaceName,</span><br><span class="line">        instanceName,</span><br><span class="line">        <span class="literal">nullptr</span>,</span><br><span class="line">        <span class="built_in">static_cast</span>&lt;<span class="type">pid_t</span>&gt;(IServiceManager::PidConstant::NO_PID))</span><br><span class="line">    &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">HidlService</span>() &#123;&#125;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到，同一个 hidl 接口，可以有多个实例实现，对应不同类型的硬件设备，比如这里 <code>/legacy/0</code> 对应内置相机，<code>/external/0</code> 对应外接 usb 相机，它们的 <code>interfaceName</code> 一样，<code>instanceName</code> 不一样。并且各自有自己的独立进程。</p>
+<p><code>camera.provider</code> 接口声明，包括 transport 是 <code>hwbinder</code>, 实例有两个 <code>legacy/0</code>, <code>external/0</code></p>
+<p><code>manifest.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">hal</span> <span class="attr">format</span>=<span class="string">&quot;hidl&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>android.hardware.camera.provider<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">transport</span>&gt;</span>hwbinder<span class="tag">&lt;/<span class="name">transport</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">interface</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>ICameraProvider<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">instance</span>&gt;</span>legacy/0<span class="tag">&lt;/<span class="name">instance</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">instance</span>&gt;</span>external/0<span class="tag">&lt;/<span class="name">instance</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">interface</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">fqname</span>&gt;</span>@2.4::ICameraProvider/legacy/0<span class="tag">&lt;/<span class="name">fqname</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">hal</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p><code>hardware/interfaces/camera/provider/2.4/default/service.cpp</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">ALOGI</span>(<span class="string">&quot;CameraProvider@2.4 legacy service is starting.&quot;</span>);</span><br><span class="line">    <span class="comment">// The camera HAL may communicate to other vendor components via</span></span><br><span class="line">    <span class="comment">// /dev/vndbinder</span></span><br><span class="line">    android::ProcessState::<span class="built_in">initWithDriver</span>(<span class="string">&quot;/dev/vndbinder&quot;</span>);</span><br><span class="line">    <span class="type">status_t</span> status;</span><br><span class="line">    <span class="keyword">if</span> (kLazyService) &#123;</span><br><span class="line">        status = <span class="built_in">defaultLazyPassthroughServiceImplementation</span>&lt;ICameraProvider&gt;(<span class="string">&quot;legacy/0&quot;</span>,</span><br><span class="line">                                                                              <span class="comment">/*maxThreads*/</span> <span class="number">6</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        status = <span class="built_in">defaultPassthroughServiceImplementation</span>&lt;ICameraProvider&gt;(<span class="string">&quot;legacy/0&quot;</span>,</span><br><span class="line">                                                                          <span class="comment">/*maxThreads*/</span> <span class="number">6</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> status;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><code>hardware/interfaces/camera/provider/2.4/default/external-service.cpp</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">ALOGI</span>(<span class="string">&quot;External camera provider service is starting.&quot;</span>);</span><br><span class="line">    <span class="comment">// The camera HAL may communicate to other vendor components via</span></span><br><span class="line">    <span class="comment">// /dev/vndbinder</span></span><br><span class="line">    android::ProcessState::<span class="built_in">initWithDriver</span>(<span class="string">&quot;/dev/vndbinder&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">defaultPassthroughServiceImplementation</span>&lt;ICameraProvider&gt;(<span class="string">&quot;external/0&quot;</span>, <span class="comment">/*maxThreads*/</span> <span class="number">6</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意下面 <code>extern &quot;C&quot;</code> 的声明，确保 C++ 符合没有做 <strong>name mangling</strong> 处理，保持原样，确保服务进程启动时可以透过 <code>dlsym</code> 获取到 <strong>HIDL_FETCH_Interface</strong> 并构造服务实例对象，然后向<code>hwservicemanager</code>注册该服务。</p>
+<p>同时 <code>CameraProvider</code> 类的实现是一个模板类工厂，根据不同模板参数创建对应的类实例。</p>
+<p><code>hardware/interfaces/camera/provider/2.4/default/CameraProvider_2_4.cpp</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;CameraProvider_2_4.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;LegacyCameraProviderImpl_2_4.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ExternalCameraProviderImpl_2_4.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> *kLegacyProviderName = <span class="string">&quot;legacy/0&quot;</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">char</span> *kExternalProviderName = <span class="string">&quot;external/0&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> android &#123;</span><br><span class="line"><span class="keyword">namespace</span> hardware &#123;</span><br><span class="line"><span class="keyword">namespace</span> camera &#123;</span><br><span class="line"><span class="keyword">namespace</span> provider &#123;</span><br><span class="line"><span class="keyword">namespace</span> V2_4 &#123;</span><br><span class="line"><span class="keyword">namespace</span> implementation &#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> android::hardware:<span class="emoji" alias="camera" style="" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4f7.png?v8">&#x1f4f7;</span>:provider::V2_4::ICameraProvider;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">ICameraProvider* <span class="title">HIDL_FETCH_ICameraProvider</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* name)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> IMPL&gt;</span></span><br><span class="line"><span class="function">CameraProvider&lt;IMPL&gt;* <span class="title">getProviderImpl</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    CameraProvider&lt;IMPL&gt; *provider = <span class="keyword">new</span> <span class="built_in">CameraProvider</span>&lt;IMPL&gt;();</span><br><span class="line">    <span class="keyword">if</span> (provider == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">        <span class="built_in">ALOGE</span>(<span class="string">&quot;%s: cannot allocate camera provider!&quot;</span>, __FUNCTION__);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (provider-&gt;<span class="built_in">isInitFailed</span>()) &#123;</span><br><span class="line">        <span class="built_in">ALOGE</span>(<span class="string">&quot;%s: camera provider init failed!&quot;</span>, __FUNCTION__);</span><br><span class="line">        <span class="keyword">delete</span> provider;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> provider;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ICameraProvider* <span class="title">HIDL_FETCH_ICameraProvider</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* name)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> android::hardware:<span class="emoji" alias="camera" style="" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4f7.png?v8">&#x1f4f7;</span>:provider::V2_4::implementation;</span><br><span class="line">    ICameraProvider* provider = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(name, kLegacyProviderName) == <span class="number">0</span>) &#123;</span><br><span class="line">        provider = <span class="built_in">getProviderImpl</span>&lt;LegacyCameraProviderImpl_2_4&gt;();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">strcmp</span>(name, kExternalProviderName) == <span class="number">0</span>) &#123;</span><br><span class="line">        provider = <span class="built_in">getProviderImpl</span>&lt;ExternalCameraProviderImpl_2_4&gt;();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">ALOGE</span>(<span class="string">&quot;%s: unknown instance name: %s&quot;</span>, __FUNCTION__, name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> provider;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;  <span class="comment">// namespace implementation</span></span><br><span class="line">&#125;  <span class="comment">// namespace V2_4</span></span><br><span class="line">&#125;  <span class="comment">// namespace provider</span></span><br><span class="line">&#125;  <span class="comment">// namespace camera</span></span><br><span class="line">&#125;  <span class="comment">// namespace hardware</span></span><br><span class="line">&#125;  <span class="comment">// namespace android</span></span><br></pre></td></tr></table></figure>
+
+<img src="/images/camera/android_camera_hal.svg" class="" width="514" height="953">
+
+<h1 id="自研-HAL-接入的方式"><a href="#自研-HAL-接入的方式" class="headerlink" title="自研 HAL 接入的方式"></a>自研 HAL 接入的方式</h1><img src="/images/camera/hal_ext.svg" class="" width="897" height="793">
+
+<p>To be continued…</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io">waterdrop wei</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io/2020/11/18/Android-Camera-HAL-Treble/">https://waterdropw.github.io/2020/11/18/Android-Camera-HAL-Treble/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://waterdropw.github.io" target="_blank">waterdrop wei's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/images/waterdrop.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/12/25/Compiler-Bug-for-C-Funcs-Override/" title="C++ 函数实现的异常覆盖"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">C++ 函数实现的异常覆盖</div></div></a></div><div class="next-post pull-right"><a href="/2020/11/12/Android-External-USB-Cameras/" title="Android 外接 USB 摄像头"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Android 外接 USB 摄像头</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/waterdrop.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">waterdrop wei</div><div class="author-info__description">技术博客，杂记，随笔</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/waterdropw"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/waterdropw" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xiaobin.wee@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到三体世界，我是水滴💧</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E9%A9%BE%E9%A9%AC%E8%BD%A6"><span class="toc-number">1.</span> <span class="toc-text">三驾马车</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E6%9E%B6%E9%A9%AC%E8%BD%A6%EF%BC%9Acameraserver"><span class="toc-number">2.</span> <span class="toc-text">第二架马车：cameraserver</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%A9%BE%E9%A9%AC%E8%BD%A6%EF%BC%9AHAL-Impl"><span class="toc-number">3.</span> <span class="toc-text">第三驾马车：HAL Impl</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Camera-Provider-%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.1.</span> <span class="toc-text">Camera Provider 实现</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%87%AA%E7%A0%94-HAL-%E6%8E%A5%E5%85%A5%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">自研 HAL 接入的方式</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/" title="极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)">极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/" title="极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)">极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/NCCL-Debug/" title="多机多卡训练：NCCL Debug">多机多卡训练：NCCL Debug</a><time datetime="2023-09-28T08:05:10.000Z" title="发表于 2023-09-28 16:05:10">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/LLaMA/" title="论文摘要-LLaMA">论文摘要-LLaMA</a><time datetime="2023-09-28T06:48:11.000Z" title="发表于 2023-09-28 14:48:11">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/12/25/Compiler-Bug-for-C-Funcs-Override/" title="C++ 函数实现的异常覆盖">C++ 函数实现的异常覆盖</a><time datetime="2020-12-25T10:09:59.000Z" title="发表于 2020-12-25 18:09:59">2020-12-25</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By waterdrop wei</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat-btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: '877679214f203d8523ee',
+      clientSecret: '45f0f9eb775009a45487e3330795c0ac1e3f08b3',
+      repo: 'waterdropw.github.io',
+      owner: 'waterdropw',
+      admin: ['waterdropw'],
+      id: '9f48efd922eb49e0cbf89bb4973b8c31',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.textContent= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

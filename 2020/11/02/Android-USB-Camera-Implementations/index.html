@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Android USB Camera 的实现方案 | waterdrop wei's blog</title><meta name="author" content="waterdrop wei"><meta name="copyright" content="waterdrop wei"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Android 设备基于 linux kernel, 自带 V4L2 支持，但是 OEM 厂商实现不同，大多默认关闭该功能。所以一般开发者或终端用户想要在 Android 设备上使用 usb camera 不是一件容易的事情。 这里简单介绍几种针对开发者来说，可选择的实现方案.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android USB Camera 的实现方案">
+<meta property="og:url" content="https://waterdropw.github.io/2020/11/02/Android-USB-Camera-Implementations/index.html">
+<meta property="og:site_name" content="waterdrop wei&#39;s blog">
+<meta property="og:description" content="Android 设备基于 linux kernel, 自带 V4L2 支持，但是 OEM 厂商实现不同，大多默认关闭该功能。所以一般开发者或终端用户想要在 Android 设备上使用 usb camera 不是一件容易的事情。 这里简单介绍几种针对开发者来说，可选择的实现方案.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://waterdropw.github.io/images/waterdrop.jpeg">
+<meta property="article:published_time" content="2020-11-02T06:36:18.000Z">
+<meta property="article:modified_time" content="2025-11-20T09:19:03.608Z">
+<meta property="article:author" content="waterdrop wei">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://waterdropw.github.io/images/waterdrop.jpeg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://waterdropw.github.io/2020/11/02/Android-USB-Camera-Implementations/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lXlWKu0XEea_JgmAK9kbcSzDAlGOvw3UBxKPUp03pz8"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Android USB Camera 的实现方案',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-20 17:19:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="waterdrop wei's blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/waterdrop.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/jellyfish.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="waterdrop wei's blog"><span class="site-name">waterdrop wei's blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Android USB Camera 的实现方案</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-11-02T06:36:18.000Z" title="发表于 2020-11-02 14:36:18">2020-11-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-20T09:19:03.608Z" title="更新于 2025-11-20 17:19:03">2025-11-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Android USB Camera 的实现方案"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>Android 设备基于 <code>linux kernel</code>, 自带 <code>V4L2</code> 支持，但是 OEM 厂商实现不同，大多默认关闭该功能。所以一般开发者或终端用户想要在 Android 设备上使用 usb camera 不是一件容易的事情。</p>
+<p>这里简单介绍几种针对开发者来说，可选择的实现方案.</p>
+<span id="more"></span>
+
+
+<h1 id="基于-libuvc-开发"><a href="#基于-libuvc-开发" class="headerlink" title="基于 libuvc 开发"></a>基于 libuvc 开发</h1><p><a target="_blank" rel="noopener" href="https://github.com/libuvc/libuvc">libuvc</a> 是一个跨平台开发库，基于 <code>libusb</code>，功能包括 UVC 设备识别与控制，视频流传输，视频流格式转换等。</p>
+<p>Android 平台上已有一个 Usb Camera 的开源项目，基于 <code>libucv</code> 的Android 应用，<a target="_blank" rel="noopener" href="https://github.com/saki4510t/UVCCamera">UVCCamera</a> 无需 <code>root</code> 权限即可预览显示连接到手机的 usb camera 设备。</p>
+<p><code>libuvc</code> 官网介绍：</p>
+<blockquote>
+<p>libuvc is a cross-platform library for USB video devices, built atop libusb. It enables fine-grained control over USB video devices exporting the standard USB Video Class (UVC) interface, enabling developers to write drivers for previously unsupported devices, or just access UVC devices in a generic fashion.</p>
+</blockquote>
+<blockquote>
+<p>libuvc is a library that supports enumeration, control and streaming for USB Video Class (UVC) devices, such as consumer webcams.<br>Features</p>
+</blockquote>
+<ul>
+<li>UVC device discovery and management API</li>
+<li>Video streaming (device to host) with asynchronous&#x2F;callback and synchronous&#x2F;polling modes</li>
+<li>Read&#x2F;write access to standard device settings</li>
+<li>Conversion between various formats: RGB, YUV, JPEG, etc.</li>
+<li>Tested on Mac and Linux, portable to Windows and some BSDs</li>
+</ul>
+<p>代码支持 CMake，android 平台编译：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/libuvc/libuvc</span><br><span class="line"><span class="built_in">cd</span> libuvc</span><br><span class="line"><span class="built_in">mkdir</span> build</span><br><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">cmake \</span><br><span class="line">    -D CMAKE_INSTALL_PREFIX=your_install_path \</span><br><span class="line">    -D CMAKE_TOOLCHAIN_FILE=<span class="variable">$&#123;ANDROID_NDK&#125;</span>/build/cmake/android.toolchain.cmake \</span><br><span class="line">    -D CMAKE_BUILD_TYPE=Debug \</span><br><span class="line">    -D ANDROID_NDK=<span class="variable">$&#123;ANDROID_NDK&#125;</span> \</span><br><span class="line">    -D ANDROID_PLATFORM=android-28 \</span><br><span class="line">    -D ANDROID_STL=c++_static \</span><br><span class="line">    -D ANDROID_PIE=ON \</span><br><span class="line">    ..</span><br><span class="line">cmake --build . --config Debug --target install -- -j6</span><br></pre></td></tr></table></figure>
+
+<p>UVCCamera</p>
+<blockquote>
+<p>library and sample to access to UVC web camera on non-rooted Android device<br>Copyright (c) 2014-2017 saki <a href="mailto:&#x74;&#x5f;&#115;&#x61;&#107;&#x69;&#x40;&#115;&#101;&#x72;&#101;&#110;&#x65;&#103;&#105;&#x61;&#110;&#x74;&#x2e;&#x63;&#111;&#109;">&#x74;&#x5f;&#115;&#x61;&#107;&#x69;&#x40;&#115;&#101;&#x72;&#101;&#110;&#x65;&#103;&#105;&#x61;&#110;&#x74;&#x2e;&#x63;&#111;&#109;</a></p>
+</blockquote>
+<h1 id="Android-官方推出的-ExternalCamera"><a href="#Android-官方推出的-ExternalCamera" class="headerlink" title="Android 官方推出的 ExternalCamera"></a>Android 官方推出的 ExternalCamera</h1><p>随着 Android P 版本升级，新增了 <code>External USB Cameras</code> 这个功能，默认情况该功能是关闭的，一些 HAL 组件不会编译到 ROM 中，需要打开更新 ROM 才行。另外该功能还依赖于 <code>android.hardware.usb.host</code> 以及 Linux kernel 打开 <code>UVC</code> 驱动支持。</p>
+<p>该实现 HAL 会启动一个 <code>hotplug</code> 线程，监视 <code>/dev/video*</code> 设备节点增删情况，透过 HAL 回调函数通知 <code>CameraProviderManager</code> 更新 camera 设备列表。因为是 Google 原生支持，所以对上层 App Framework 来说，调用方式不需要变，依然调用 <code>Android Camera2 API</code>，只是看到的 cameraId 是类似 <code>/dev/video2</code> 之类的编号（内置相机是0，1，2 … 纯数字编号）</p>
+<p>详细实操过程可以参考这篇文章：</p>
+<a href="/2020/11/12/Android-External-USB-Cameras/" title="Android 外接 USB 摄像头">Android 外接 USB 摄像头</a>
+
+
+<h1 id="camera-v4l2-实现"><a href="#camera-v4l2-实现" class="headerlink" title="camera.v4l2 实现"></a>camera.v4l2 实现</h1><p>该库也是基于 <code>V4L2</code> 的 <code>Camera HALv3</code> 实现，原本是 Google 开发出来给树莓派系统使用的。所以从 Android AOSP 代码库里面可以找到这份源代码，但是只有 HAL 实现，没有接入 Android Framework，也就是 cameraserver 是调用不到的。如果有树莓派源代码的话倒是可以参考看看，不过估计也是基于这个初阶版本改过甚至是采用了全新的实现。</p>
+<p>该库在 Android 系统里也是默认关闭的，需要打开才会编到 ROM 里，代码实现上解耦了 camera interface 与 V2L2 wrapper 部分，所以理论上可以把 V4L2 实现替换成其它也是 ok 的。</p>
+<p>详细介绍可以参考这篇文章：</p>
+<a href="/2020/10/25/V4L2-Camera-HALv3/" title="V4L2 Camera HALv3 介绍">V4L2 Camera HALv3 介绍</a>
+
+
+
+<h1 id="usbcamera-HAL"><a href="#usbcamera-HAL" class="headerlink" title="usbcamera HAL"></a>usbcamera HAL</h1><p>Google 早期提供的一个示例代码，是空实现。略过。  </p>
+<p>代码位置：<br><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/hardware/libhardware/+/refs/heads/master/modules/usbcamera/"><code>hardware/libhardware/modules/usbcamera</code></a></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><blockquote>
+<p><code>libuvc</code><br><a target="_blank" rel="noopener" href="https://github.com/saki4510t/UVCCamera">https://github.com/saki4510t/UVCCamera</a><br><a target="_blank" rel="noopener" href="https://github.com/libuvc/libuvc">https://github.com/libuvc/libuvc</a><br><a target="_blank" rel="noopener" href="https://github.com/libusb/libusb">https://github.com/libusb/libusb</a><br><a target="_blank" rel="noopener" href="https://ken.tossell.net/libuvc/doc/">https://ken.tossell.net/libuvc/doc/</a><br><a target="_blank" rel="noopener" href="https://libusb.info/">https://libusb.info/</a></p>
+</blockquote>
+<blockquote>
+<p><code>external usb camera</code><br><a target="_blank" rel="noopener" href="https://source.android.com/devices/camera/external-usb-cameras">https://source.android.com/devices/camera/external-usb-cameras</a><br><a target="_blank" rel="noopener" href="https://groups.google.com/g/android-platform/c/Qx1P0I17uzs?pli=1">https://groups.google.com/g/android-platform/c/Qx1P0I17uzs?pli=1</a></p>
+</blockquote>
+<blockquote>
+<p><code>V4L2 Camera Hal</code><br><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/hardware/libhardware/+/master/modules/camera/3_4/README.md">https://android.googlesource.com/platform/hardware/libhardware/+/master/modules/camera/3_4/README.md</a></p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io">waterdrop wei</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io/2020/11/02/Android-USB-Camera-Implementations/">https://waterdropw.github.io/2020/11/02/Android-USB-Camera-Implementations/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://waterdropw.github.io" target="_blank">waterdrop wei's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/images/waterdrop.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/11/12/Android-External-USB-Cameras/" title="Android 外接 USB 摄像头"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Android 外接 USB 摄像头</div></div></a></div><div class="next-post pull-right"><a href="/2020/10/25/V4L2-Camera-HALv3/" title="V4L2 Camera HALv3 介绍"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">V4L2 Camera HALv3 介绍</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/waterdrop.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">waterdrop wei</div><div class="author-info__description">技术博客，杂记，随笔</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/waterdropw"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/waterdropw" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xiaobin.wee@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到三体世界，我是水滴💧</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E-libuvc-%E5%BC%80%E5%8F%91"><span class="toc-number">1.</span> <span class="toc-text">基于 libuvc 开发</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Android-%E5%AE%98%E6%96%B9%E6%8E%A8%E5%87%BA%E7%9A%84-ExternalCamera"><span class="toc-number">2.</span> <span class="toc-text">Android 官方推出的 ExternalCamera</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#camera-v4l2-%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">camera.v4l2 实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#usbcamera-HAL"><span class="toc-number">4.</span> <span class="toc-text">usbcamera HAL</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/" title="极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)">极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/" title="极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)">极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/NCCL-Debug/" title="多机多卡训练：NCCL Debug">多机多卡训练：NCCL Debug</a><time datetime="2023-09-28T08:05:10.000Z" title="发表于 2023-09-28 16:05:10">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/LLaMA/" title="论文摘要-LLaMA">论文摘要-LLaMA</a><time datetime="2023-09-28T06:48:11.000Z" title="发表于 2023-09-28 14:48:11">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/12/25/Compiler-Bug-for-C-Funcs-Override/" title="C++ 函数实现的异常覆盖">C++ 函数实现的异常覆盖</a><time datetime="2020-12-25T10:09:59.000Z" title="发表于 2020-12-25 18:09:59">2020-12-25</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By waterdrop wei</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat-btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: '877679214f203d8523ee',
+      clientSecret: '45f0f9eb775009a45487e3330795c0ac1e3f08b3',
+      repo: 'waterdropw.github.io',
+      owner: 'waterdropw',
+      admin: ['waterdropw'],
+      id: '8b2848a3440cf67ab4d9604870251c37',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.textContent= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
