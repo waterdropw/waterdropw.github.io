@@ -1,0 +1,389 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Ant Robot Research | waterdropw's blog</title><meta name="author" content="waterdrop wei"><meta name="copyright" content="waterdrop wei"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="仿生学仿生学在人工智能（AI）和机器人领域的应用前景非常广阔，它是推动未来技术发展的重要驱动力之一。通过模仿生物的结构、功能和行为，仿生学为解决复杂的工程难题和创造更智能、适应性更强的系统提供了全新的思路。 主要应用前景  提高机器人在复杂环境中的适应性和灵活性自然界中的生物可以在极其复杂、非结构化的环境中生存和移动。仿生学使机器人能够借鉴这些能力：   地形适应性：模仿昆虫（如蚂蚁）或四足动物（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ant Robot Research">
+<meta property="og:url" content="https://waterdropw.github.io/2025/11/21/Ant-Robot-Research/index.html">
+<meta property="og:site_name" content="waterdropw&#39;s blog">
+<meta property="og:description" content="仿生学仿生学在人工智能（AI）和机器人领域的应用前景非常广阔，它是推动未来技术发展的重要驱动力之一。通过模仿生物的结构、功能和行为，仿生学为解决复杂的工程难题和创造更智能、适应性更强的系统提供了全新的思路。 主要应用前景  提高机器人在复杂环境中的适应性和灵活性自然界中的生物可以在极其复杂、非结构化的环境中生存和移动。仿生学使机器人能够借鉴这些能力：   地形适应性：模仿昆虫（如蚂蚁）或四足动物（">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://waterdropw.github.io/images/waterdrop.jpeg">
+<meta property="article:published_time" content="2025-11-21T02:43:15.000Z">
+<meta property="article:modified_time" content="2025-11-21T06:28:35.985Z">
+<meta property="article:author" content="waterdrop wei">
+<meta property="article:tag" content="Research">
+<meta property="article:tag" content="Robot">
+<meta property="article:tag" content="CPG">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://waterdropw.github.io/images/waterdrop.jpeg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://waterdropw.github.io/2025/11/21/Ant-Robot-Research/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="lXlWKu0XEea_JgmAK9kbcSzDAlGOvw3UBxKPUp03pz8"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Ant Robot Research',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-11-21 14:28:35'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="waterdropw's blog" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/waterdrop.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/jellyfish.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="waterdropw's blog"><span class="site-name">waterdropw's blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Ant Robot Research</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-11-21T02:43:15.000Z" title="发表于 2025-11-21 10:43:15">2025-11-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-11-21T06:28:35.985Z" title="更新于 2025-11-21 14:28:35">2025-11-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Research/">Research</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Research/Robot/">Robot</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Research/Robot/CPG/">CPG</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Ant Robot Research"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="仿生学"><a href="#仿生学" class="headerlink" title="仿生学"></a>仿生学</h1><p>仿生学在人工智能（AI）和机器人领域的应用前景非常广阔，它是推动未来技术发展的重要驱动力之一。通过模仿生物的结构、功能和行为，仿生学为解决复杂的工程难题和创造更智能、适应性更强的系统提供了全新的思路。</p>
+<p>主要应用前景</p>
+<ol>
+<li>提高机器人在复杂环境中的适应性和灵活性<br>自然界中的生物可以在极其复杂、非结构化的环境中生存和移动。仿生学使机器人能够借鉴这些能力：</li>
+</ol>
+<ul>
+<li>地形适应性：模仿昆虫（如蚂蚁）或四足动物（如波士顿动力公司的Spot机器人）的设计，使机器人在崎岖不平、楼梯甚至废墟中移动，远超传统轮式或履带式机器人。</li>
+<li>软体机器人：受章鱼、水母等软体动物启发，开发能够挤过狭窄空间、安全地与人类互动或在敏感环境中操作的软体机器人。</li>
+<li>极端环境探索：仿生机器人可以在深海、太空、灾害现场（地震、火灾）等危险或人类难以到达的地方执行勘测、监测和搜救任务。</li>
+</ul>
+<ol start="2">
+<li>推动新型传感和感知技术的发展<br>生物拥有高效、敏感的感知系统。模仿这些系统可以显著提升机器人的感知能力：</li>
+</ol>
+<ul>
+<li>仿生视觉系统：模仿人眼或昆虫复眼，开发具有动态立体视觉、超广角视野或高敏感度的视觉传感器，用于自主导航和目标识别。</li>
+<li>仿生听觉和嗅觉：开发能够检测微弱声音或特定化学物质（信息素）的传感器，应用于环境监测、安全检查或医疗诊断。</li>
+</ul>
+<ol start="3">
+<li>优化AI算法和集体智能<br>生物行为和神经系统的研究为AI算法提供了灵感：</li>
+</ol>
+<ul>
+<li>群体智能：模仿蚁群觅食、鸟群迁徙等集体行为，开发能够通过简单个体规则实现复杂群体协作的分布式AI系统。这在物流、仓储自动化和多机器人协同作业中有巨大潜力。</li>
+<li>类脑计算与神经形态工程：直接模仿生物神经元网络结构和工作机制，设计新型硬件（仿生芯片），实现低功耗、高效率的自主学习和决策能力，推动AI从“感知智能”向“认知智能”迈进。</li>
+</ul>
+<ol start="4">
+<li>医疗健康领域的革命</li>
+</ol>
+<ul>
+<li>仿生假肢和外骨骼：结合先进传感器和AI技术，开发能够提供自然运动和触觉反馈的仿生肢体，显著改善残障人士的生活质量。</li>
+<li>微创手术机器人：开发微型仿生机器人，用于靶向药物递送或微创手术，提高手术精度和患者预后。<br>挑战与未来趋势</li>
+<li>技术整合挑战：将生物学原理转化为可行的工程解决方案需要跨学科（生物学、材料学、机械工程、计算机科学等）的深度融合。</li>
+<li>材料创新：需要开发新的仿生材料，例如自我修复材料或具有类似肌肉功能的柔性驱动器，以提高机器人的耐久性和性能。</li>
+<li>伦理与社会影响：随着仿生AI和机器人的能力越来越强，如何规范其使用、处理潜在的就业冲击和伦理问题也是未来的重要议题</li>
+</ul>
+<h1 id="蚂蚁的运动神经系统"><a href="#蚂蚁的运动神经系统" class="headerlink" title="蚂蚁的运动神经系统"></a>蚂蚁的运动神经系统</h1><p>与蚂蚁行走神经控制原理（依赖中枢模式发生器 CPG 和感觉反馈）类似的行走类型，主要存在于其他昆虫和节肢动物中。<br>这类行走控制的核心特点是：</p>
+<ul>
+<li>分布式控制：行走步态的生成不需要高级大脑的复杂指令，而是由身体各节段的局部神经回路（CPG）自主产生。</li>
+<li>反应式调节：环境感知主要依赖腿部的感觉反馈，实时微调步态以适应地形。</li>
+</ul>
+<p>具有类似行走控制原理的生物</p>
+<ul>
+<li>其他昆虫（蟑螂、蜜蜂、蝗虫等）：所有六足昆虫基本上都采用类似的神经控制策略。它们通常采用稳定的“交替三足步态”，并且能够根据速度和地形的变化灵活调整步态。蟑螂在这方面的研究尤其多，其强大的适应性和恢复能力证明了这种控制机制的有效性。</li>
+<li>多足动物（蜈蚣、千足虫）：这些生物的行走控制原理也是基于CPG的节律性输出，但由于腿的数量更多，它们表现出更强的分布式协调能力，确保所有腿的运动顺序一致且高效。</li>
+<li>蛛形纲动物（蜘蛛、蝎子）：蜘蛛有八条腿，它们的行走控制也依赖于胸部神经节中的CPG，并利用腿上的丰富感觉毛发进行精确的定位和运动控制。</li>
+<li>甲壳类动物（螃蟹、小龙虾）：虽然生活环境不同，但它们的多足运动控制也涉及CPG和感觉反馈的整合，使其能够在陆地和水下复杂环境中移动。</li>
+</ul>
+<p>在机器人学中，受这些生物启发的行走控制方法也被广泛应用：</p>
+<ul>
+<li>六足机器人 (Hexapod Robots)：大多数商业和研究用的六足机器人都使用模拟CPG的控制算法来生成稳定的步态，这使得它们在复杂地形上具有很高的稳定性和能源效率。</li>
+<li>被动行走机器人 (Passive Dynamic Walkers)：虽然不完全依赖神经系统，但这类机器人利用自身机械结构的物理特性（如重力和动量）来产生类似动物的高效行走步态。它们展示了步态生成可以非常简单，甚至不需要复杂的计算。</li>
+<li>模块化和可重构机器人：在搬运重物时，多个小型机器人可以通过简单的规则（类似蚂蚁的集体运输）协同工作，展现出类似于蚁群的分布式控制和集体智能。</li>
+</ul>
+<h2 id="CPG的作用"><a href="#CPG的作用" class="headerlink" title="CPG的作用"></a>CPG的作用</h2><p>CPG是位于蚂蚁神经系统中的一组神经元网络，能够产生有节律的运动模式，无需大脑的持续输入。 </p>
+<ul>
+<li>节律生成：每个蚂蚁的胸节都含有一套控制同侧腿部肌肉收缩和放松的CPG。这些CPG之间相互连接，形成一个协调网络，产生有节奏的步态。</li>
+<li>交替三足步态：蚂蚁最常见的步态是“交替三足步态”（alternating tripod gait）。在这个模式中，它将三条腿作为一个整体移动：一侧的前后腿和另一侧的中间腿同时向前迈出，而另外三条腿则保持静止。随后，两组腿的动作交替进行。这种步态提供了高度的稳定性和速度，同时保持较低的重心。</li>
+<li>可变步态：CPG系统足够灵活，允许蚂蚁根据速度和地形调整步态。例如，在较慢的速度下，蚂蚁可能会采用其他腿部协调模式。</li>
+</ul>
+<h2 id="运动的微调：感觉反馈"><a href="#运动的微调：感觉反馈" class="headerlink" title="运动的微调：感觉反馈"></a>运动的微调：感觉反馈</h2><p>虽然CPG负责生成基本步态，但蚂蚁的行走并非完全机械化。感觉反馈不断调整CPG的输出，以应对环境变化。 </p>
+<ul>
+<li>机械感受器：蚂蚁腿部的关节和足垫上的感觉毛发是重要的机械感受器，能检测接触、振动和压力。当腿部触地或遇到障碍物时，这些感受器会向CPG网络发送信号，促使步态进行微调。</li>
+<li>本体感受器：这些感受器位于蚂蚁的肌肉和关节中，用于监测腿部的伸展和位置。这些信号会反馈给CPG，以帮助维持平衡和协调性。</li>
+<li>自适应网络：这种感觉反馈机制使得蚂蚁能够快速适应不平坦的地面、改变的坡度，甚至在水面上行走</li>
+</ul>
+<h2 id="导航与方向：大脑的角色"><a href="#导航与方向：大脑的角色" class="headerlink" title="导航与方向：大脑的角色"></a>导航与方向：大脑的角色</h2><p>尽管CPG控制基本的行走节奏，蚂蚁的大脑（更准确地说是脑内神经节）负责更复杂的导航和方向感应功能。 </p>
+<ul>
+<li>视觉导航：蚂蚁使用视觉线索（如天空偏振光、地标）来确定方向。即使是倒着走，它们也能利用这些线索保持直线行进。</li>
+<li>路径整合：某些种类的蚂蚁能够通过内部“计步器”和方向感应来记录回家的路径，这被称为路径整合。它们的脑内结构（如中枢复合体）负责处理这些空间信息。</li>
+<li>信息整合：大脑整合来自触角（用于嗅觉和触觉）和视觉系统的感官输入。例如，蚂蚁通过触角感知信息素，决定行进路线。</li>
+<li>集体智能：在搬运重物时，尽管个体蚂蚁的脑力有限，但它们能通过集体协调来调整方向。由少数拥有最新信息的“侦察兵”蚂蚁引导，多数蚂蚁则提供力量，从而实现高效的集体运动</li>
+</ul>
+<p>总结：蚂蚁行走的神经控制是一个分层和模块化的系统：</p>
+<ul>
+<li>低层控制：由胸部神经节中的<strong>中枢模式发生器（CPG）</strong>负责生成基础的节律性步态，如交替三足步态。</li>
+<li>中层调节：通过腿部和身体上的感觉反馈（机械感受和本体感受）系统，CPG的输出可以根据地形变化进行微调。</li>
+<li>高层指挥：虽然不像人类大脑那样复杂，但蚂蚁的脑内神经节负责处理导航信息，包括视觉线索、气味和路径整合，以指导整体的行进方向和策略。</li>
+</ul>
+<h1 id="仿生蚂蚁"><a href="#仿生蚂蚁" class="headerlink" title="仿生蚂蚁"></a>仿生蚂蚁</h1><p>设计一个仿生蚂蚁机器人，可以从模仿单个蚂蚁的生理结构和行为、模仿蚁群的群体协作以及集成先进的计算和感知能力这三个层面进行考虑。以下是针对不同层面的详细设计建议。</p>
+<h2 id="单个仿生蚂蚁的设计"><a href="#单个仿生蚂蚁的设计" class="headerlink" title="单个仿生蚂蚁的设计"></a>单个仿生蚂蚁的设计</h2><ol>
+<li>结构和运动系统</li>
+</ol>
+<ul>
+<li>六足设计：采用六足结构以获得高稳定性和适应性。蚂蚁最常见的“交替三足步态”（alternating tripod gait）能提供出色的稳定性和效率，特别是在不平坦的地面上。</li>
+<li>模块化和轻量化：机器人本体应采用模块化设计，便于组装、维护和升级。使用轻质材料（如碳纤维、特殊塑料）可以降低自重，提高移动速度和续航时间。</li>
+<li>仿生关节和足部：模仿蚂蚁腿部的关节结构，实现灵活的运动。每条腿应至少有三个自由度，以实现行走、转向和适应地形。足部可使用具有防滑特性的材料（如橡胶），以增加抓地力。</li>
+<li>躯干设计：虽然不一定要完全模仿蚂蚁的头、胸、腹三段式结构，但可以借鉴其平衡设计。例如，为了平衡前方携带的重物，可以调整身体的质量分布。</li>
+</ul>
+<ol start="2">
+<li>控制系统</li>
+</ol>
+<ul>
+<li>中枢模式发生器 (CPG)：利用生物学中的CPG原理，用一套简单的振荡器网络来控制六条腿的节律性运动。这比复杂的大脑式控制更简单、更高效，并且对外部扰动有更强的鲁棒性。</li>
+<li>感觉反馈：在机器人的腿部和身体上安装传感器，模仿蚂蚁的机械感受器。这些传感器可以检测接触、压力和振动，并将信号反馈给CPG，实时调整步态以适应不同的地形和障碍物。</li>
+<li>自适应步态：设计控制器，让机器人在不同速度和地形下能切换步态。例如，在光滑地面上采用三足步态，在复杂或倾斜地面上切换到更稳定的慢速步态，甚至能够适应部分腿部失灵的情况。</li>
+</ul>
+<ol start="3">
+<li>感知和导航</li>
+</ol>
+<ul>
+<li>路径整合（计步器）：利用惯性测量单元（IMU）和里程计，让机器人像沙漠蚂蚁一样，通过记录行进方向和距离来计算回巢的路径，实现路径整合。</li>
+<li>视觉导航：使用简单的摄像头来模拟蚂蚁对视觉地标的记忆，帮助机器人修正航向。</li>
+<li>触角传感：安装触觉传感器来模拟蚂蚁的触角。这对于近距离探测障碍物和探索复杂环境至关重要。</li>
+</ul>
+<h2 id="蚁群协作的设计"><a href="#蚁群协作的设计" class="headerlink" title="蚁群协作的设计"></a>蚁群协作的设计</h2><ol>
+<li>通信机制</li>
+</ol>
+<ul>
+<li>虚拟信息素：利用无线通信（如射频、Wi-Fi）或视觉标记来模拟蚂蚁信息素的作用。机器人可以在寻找目标（如能源或任务点）时，在电子地图上留下虚拟的“信息素”，引导其他机器人。</li>
+<li>信息素浓度：模拟信息素的挥发性，让虚拟信息素随时间衰减。这可以帮助蚁群忽略低效的路径，转而选择信息素浓度最高的最佳路径。</li>
+</ul>
+<ol start="2">
+<li>集群行为</li>
+</ol>
+<ul>
+<li>简单的个体规则：为每个机器人设定简单的行为规则，例如“寻找信息素浓度最高的路径”、“发现目标后释放信息素”等。复杂的群体行为（如集体运输）会从这些简单的个体行为中自然涌现。</li>
+<li>分布式决策：避免中央控制，让每个机器人基于局部信息和周围机器人的状态独立决策。这使得蚁群机器人系统具有很高的鲁棒性，即使部分个体失效，整体功能也不会受到太大影响。</li>
+<li>集体运输：设计一个机械耦合系统（如仿生钩爪），使多个机器人可以协同搬运大型物体。通过简单的触觉和运动协调，机器人可以像蚂蚁一样共同调整方向和步调。</li>
+</ul>
+<p>综合性能建议</p>
+<ul>
+<li>能耗优化：仿生蚂蚁的低计算量和高效步态有助于降低能耗。在设计时，应注重机械结构的高效和控制策略的简单性，以延长续航时间。</li>
+<li>任务定制：根据应用场景（如搜救、环境监测、微型制造等）定制机器人的功能。例如，可以为机器人增加摄像头、微型抓手或环境传感器。</li>
+<li>人机交互：设计一个简单的用户界面，允许用户监测机器人集群的状态、下达任务指令，并可视化信息素地图和路径。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io">waterdrop wei</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://waterdropw.github.io/2025/11/21/Ant-Robot-Research/">https://waterdropw.github.io/2025/11/21/Ant-Robot-Research/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://waterdropw.github.io" target="_blank">waterdropw's blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Research/">Research</a><a class="post-meta__tags" href="/tags/Robot/">Robot</a><a class="post-meta__tags" href="/tags/CPG/">CPG</a></div><div class="post_share"><div class="social-share" data-image="/images/waterdrop.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/" title="极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/waterdrop.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">waterdrop wei</div><div class="author-info__description">技术博客，杂记，随笔</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/waterdropw"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/waterdropw" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xiaobin.wee@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到三体世界，我是水滴💧</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%BF%E7%94%9F%E5%AD%A6"><span class="toc-number">1.</span> <span class="toc-text">仿生学</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%9A%82%E8%9A%81%E7%9A%84%E8%BF%90%E5%8A%A8%E7%A5%9E%E7%BB%8F%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.</span> <span class="toc-text">蚂蚁的运动神经系统</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CPG%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">2.1.</span> <span class="toc-text">CPG的作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E5%8A%A8%E7%9A%84%E5%BE%AE%E8%B0%83%EF%BC%9A%E6%84%9F%E8%A7%89%E5%8F%8D%E9%A6%88"><span class="toc-number">2.2.</span> <span class="toc-text">运动的微调：感觉反馈</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%BC%E8%88%AA%E4%B8%8E%E6%96%B9%E5%90%91%EF%BC%9A%E5%A4%A7%E8%84%91%E7%9A%84%E8%A7%92%E8%89%B2"><span class="toc-number">2.3.</span> <span class="toc-text">导航与方向：大脑的角色</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%BF%E7%94%9F%E8%9A%82%E8%9A%81"><span class="toc-number">3.</span> <span class="toc-text">仿生蚂蚁</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E4%B8%AA%E4%BB%BF%E7%94%9F%E8%9A%82%E8%9A%81%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">3.1.</span> <span class="toc-text">单个仿生蚂蚁的设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%9A%81%E7%BE%A4%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">3.2.</span> <span class="toc-text">蚁群协作的设计</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/11/21/Ant-Robot-Research/" title="Ant Robot Research">Ant Robot Research</a><time datetime="2025-11-21T02:43:15.000Z" title="发表于 2025-11-21 10:43:15">2025-11-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-4e23ad8/" title="极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)">极简`Transformer`实现(基于`llama2.c`commit-4e23ad 23'7/27)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/04/17/Dive-into-Transformer-simpliest-implementation-llama2-c-b3c4b6c/" title="极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)">极简`Transformer`实现(基于`llama2.c`commit-b3c4b6c 24'2/13)</a><time datetime="2024-04-17T02:34:26.000Z" title="发表于 2024-04-17 10:34:26">2024-04-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/NCCL-Debug/" title="多机多卡训练：NCCL Debug">多机多卡训练：NCCL Debug</a><time datetime="2023-09-28T08:05:10.000Z" title="发表于 2023-09-28 16:05:10">2023-09-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/28/LLaMA/" title="论文摘要-LLaMA">论文摘要-LLaMA</a><time datetime="2023-09-28T06:48:11.000Z" title="发表于 2023-09-28 14:48:11">2023-09-28</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By waterdrop wei</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat-btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: '877679214f203d8523ee',
+      clientSecret: '45f0f9eb775009a45487e3330795c0ac1e3f08b3',
+      repo: 'waterdropw.github.io',
+      owner: 'waterdropw',
+      admin: ['waterdropw'],
+      id: '68ac28e2fbba8db1488a83a58c929b91',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.textContent= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
