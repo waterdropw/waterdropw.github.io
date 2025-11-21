@@ -119,6 +119,15 @@
   </url>
   
   <url>
+    <loc>https://waterdropw.github.io/hot/index.html</loc>
+    
+    <lastmod>2025-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://waterdropw.github.io/googled7c6edc3a9953ead.html</loc>
     
     <lastmod>2025-11-20</lastmod>
@@ -129,15 +138,6 @@
   
   <url>
     <loc>https://waterdropw.github.io/categories/index.html</loc>
-    
-    <lastmod>2025-11-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/hot/index.html</loc>
     
     <lastmod>2025-11-20</lastmod>
     
@@ -199,6 +199,27 @@
   </url>
   
   <url>
+    <loc>https://waterdropw.github.io/tags/Research/</loc>
+    <lastmod>2025-11-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/Robot/</loc>
+    <lastmod>2025-11-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/tags/CPG/</loc>
+    <lastmod>2025-11-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://waterdropw.github.io/tags/AI/</loc>
     <lastmod>2025-11-21</lastmod>
     <changefreq>weekly</changefreq>
@@ -247,27 +268,6 @@
     <priority>0.2</priority>
   </url>
   
-  <url>
-    <loc>https://waterdropw.github.io/tags/Research/</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/tags/Robot/</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/tags/CPG/</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
 
   
   <url>
@@ -292,13 +292,6 @@
   </url>
   
   <url>
-    <loc>https://waterdropw.github.io/categories/AI/</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://waterdropw.github.io/categories/Android/Camera/HAL/</loc>
     <lastmod>2025-11-21</lastmod>
     <changefreq>weekly</changefreq>
@@ -306,7 +299,28 @@
   </url>
   
   <url>
+    <loc>https://waterdropw.github.io/categories/Research/</loc>
+    <lastmod>2025-11-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/AI/</loc>
+    <lastmod>2025-11-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://waterdropw.github.io/categories/Android/NDK/Compiler/</loc>
+    <lastmod>2025-11-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/Research/Robot/</loc>
     <lastmod>2025-11-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -327,6 +341,20 @@
   </url>
   
   <url>
+    <loc>https://waterdropw.github.io/categories/AI/HPC/</loc>
+    <lastmod>2025-11-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://waterdropw.github.io/categories/Research/Robot/CPG/</loc>
+    <lastmod>2025-11-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://waterdropw.github.io/categories/AI/transformer/self-attention/</loc>
     <lastmod>2025-11-21</lastmod>
     <changefreq>weekly</changefreq>
@@ -341,35 +369,7 @@
   </url>
   
   <url>
-    <loc>https://waterdropw.github.io/categories/AI/HPC/</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://waterdropw.github.io/categories/AI/HPC/GPU/</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/categories/Research/</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/categories/Research/Robot/</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://waterdropw.github.io/categories/Research/Robot/CPG/</loc>
     <lastmod>2025-11-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
