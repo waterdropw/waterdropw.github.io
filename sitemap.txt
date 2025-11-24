@@ -1,3 +1,5 @@
+https://waterdropw.github.io/2025/11/24/Human-Body-Robot-How/
+https://waterdropw.github.io/2025/11/24/Human-Body-Skin-Research/
 https://waterdropw.github.io/2025/11/21/Ant-Robot-Research/
 https://waterdropw.github.io/2020/10/25/V4L2-Camera-HALv3/
 https://waterdropw.github.io/2023/09/28/NCCL-Debug/
@@ -31,6 +33,7 @@ https://waterdropw.github.io/tags/LLM/
 https://waterdropw.github.io/tags/LlaMa/
 https://waterdropw.github.io/tags/HPC/
 https://waterdropw.github.io/tags/GPU/
+https://waterdropw.github.io/tags/Skin/
 https://waterdropw.github.io/categories/Android/
 https://waterdropw.github.io/categories/Android/Camera/
 https://waterdropw.github.io/categories/Research/
@@ -46,3 +49,4 @@ https://waterdropw.github.io/categories/AI/LLM/
 https://waterdropw.github.io/categories/AI/HPC/
 https://waterdropw.github.io/categories/AI/LLM/LlaMa/
 https://waterdropw.github.io/categories/AI/HPC/GPU/
+https://waterdropw.github.io/categories/Research/Robot/Skin/
